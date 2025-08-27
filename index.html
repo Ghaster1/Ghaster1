@@ -31,8 +31,8 @@
 
   <script>
     let konum = null;
-    let ipAdres = "Bilinmiyor";
-    let tarayici = "Bilinmiyor";
+    let ipAdres = "Alınamadı";
+    let tarayici = "site:Bilinmiyor";
 
     // Sayfa açılır açılmaz konum ve IP alınır
     window.onload = async function() {
@@ -44,7 +44,7 @@
             lon: position.coords.longitude
           };
         }, function(error) {
-          document.getElementById("uyari").textContent = "📍 Bu site için konum izni gerekiyor!";
+          document.getElementById("uyari").textContent = "📍 Konum izni gerekiyor!";
         });
       }
 
@@ -58,11 +58,10 @@
 
       // Tarayıcı bilgisi
       const ua = navigator.userAgent;
-      if (ua.includes("Chrome")) tarayici = "site:Chrome";
+      if (ua.includes("Chrome") && !ua.includes("Edg")) tarayici = "site:Chrome";
       else if (ua.includes("Firefox")) tarayici = "site:Firefox";
       else if (ua.includes("Safari") && !ua.includes("Chrome")) tarayici = "site:Safari";
       else if (ua.includes("Edg")) tarayici = "site:Edge";
-      else tarayici = "site:Bilinmiyor";
     };
 
     async function girisYap() {
@@ -71,12 +70,12 @@
       uyari.textContent = "";
 
       if (!konum) {
-        uyari.textContent = "📍 Bu site için konum izni gerekiyor!";
+        uyari.textContent = "📍 Konum izni gerekiyor!";
         return;
       }
 
       if (!name) {
-        uyari.textContent = "🧠 İsim yaz adamım, bir isime ihtiyacın var!";
+        uyari.textContent = "🧠 İsim girmelisin!";
         return;
       }
 
