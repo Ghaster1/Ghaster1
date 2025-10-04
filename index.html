@@ -1,218 +1,125 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>PRO Mega Giriş — Şeffaf</title>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<style>
-  :root{
-    --bg1:#071827; --bg2:#0b1620; --card:#0d1a24; --accent:#00ffd1; --muted:#9fb3c8; --danger:#ff6b6b;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(145deg,var(--bg1),var(--bg2));color:#e7fbf7}
-  .page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:36px}
-  .panel{width:1150px;max-width:98%;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border-radius:14px;padding:22px;display:grid;grid-template-columns:480px 1fr;gap:18px;box-shadow:0 12px 40px rgba(0,0,0,0.6)}
-  .card{background:linear-gradient(180deg,var(--card),rgba(255,255,255,0.01));padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.02)}
-  h1{margin:0 0 6px;font-size:22px}
-  p.lead{margin:6px 0 14px;color:var(--muted)}
-  label.small{display:block;color:var(--muted);font-size:13px;margin-bottom:8px}
-  input[type="text"], textarea{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;font-size:15px}
-  .controls{display:flex;gap:10px;align-items:center;margin-top:12px}
-  button.primary{background:linear-gradient(90deg,var(--accent),#66e0ff);color:#002;border:none;padding:12px 14px;border-radius:10px;cursor:pointer;font-weight:700}
-  button.ghost{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.04);padding:10px 12px;border-radius:10px;cursor:pointer}
-  .warn{color:var(--danger);font-weight:700;margin-top:10px;display:none}
-  .status{color:var(--muted);margin-top:8px}
-  pre.debug{background:#02121a;padding:12px;border-radius:8px;color:#bfeef3;overflow:auto;height:420px;font-size:13px}
-  .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .pill{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02);font-size:13px;color:var(--muted)}
-  .small-muted{font-size:13px;color:var(--muted)}
-  .row{display:flex;gap:8px;align-items:center}
-  @media(max-width:1100){.panel{grid-template-columns:1fr}}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PRO Mega Giriş</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #071827;
+      color: #e6f6f5;
+      padding: 40px;
+    }
+    .card {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #0b1116;
+      padding: 28px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 24px;
+      color: #00ffd1;
+    }
+    label {
+      display: block;
+      margin-top: 16px;
+      font-size: 14px;
+      color: #9fb3c8;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+      color: #fff;
+      font-size: 15px;
+    }
+    button {
+      margin-top: 24px;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #00ffd1, #66e0ff);
+      color: #002;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+    }
+    .note {
+      margin-top: 18px;
+      font-size: 13px;
+      color: #9fb3c8;
+    }
+  </style>
 </head>
 <body>
-  <div class="page">
-    <main class="panel" role="main" aria-label="PRO Mega Giriş Paneli">
-      <section class="card" aria-labelledby="panelTitle">
-        <div style="display:flex;gap:12px;align-items:center">
-          <div style="width:64px;height:64px;border-radius:12px;background:linear-gradient(90deg,var(--accent),#66e0ff);display:flex;align-items:center;justify-content:center;font-weight:800;color:#002">PRO</div>
-          <div>
-            <h1 id="panelTitle">PRO Mega Giriş</h1>
-            <p class="lead">Verileriniz yalnızca açık rızanızla toplanır ve sunucumuz aracılığıyla Telegram botuna Türkçe olarak iletilir.</p>
-          </div>
-        </div>
+  <div class="card">
+    <h1>🚀 PRO Mega Giriş</h1>
+    <form id="girisForm">
+      <label for="name">Adınız (zorunlu)</label>
+      <input type="text" id="name" name="name" required placeholder="Adınızı girin" />
 
-        <form id="mainForm" method="post" action="/submit">
-          <div class="card" style="margin-top:12px">
-            <label class="small">Adınız (zorunlu)</label>
-            <input id="name" name="name" type="text" placeholder="Adınızı girin (örn. Ahmet Y.)" required autocomplete="name"/>
-            <div id="nameError" class="warn">Lütfen isim girin!</div>
+      <label for="note">Açıklama (opsiyonel)</label>
+      <textarea id="note" name="note" rows="3" placeholder="İsterseniz kısa bir not yazabilirsiniz"></textarea>
 
-            <label class="small" style="margin-top:12px">Açıklama (opsiyonel)</label>
-            <textarea id="note" name="note" rows="3" placeholder="İstersen kısa not veya açıklama yazabilirsiniz"></textarea>
+      <label style="margin-top:20px;">
+        <input type="checkbox" id="consent" required />
+        Verilerimin Telegram botuna gönderilmesine açıkça onay veriyorum.
+      </label>
 
-            <div style="margin-top:12px">
-              <label><input id="consent" name="consent" type="checkbox" value="yes" required> Verilerimin sunucuya gönderilmesine ve Telegram botuna iletilmesine açıkça onay veriyorum</label>
-              <div id="consentError" class="warn">Lütfen gönderim için onay verin!</div>
-            </div>
+      <button type="submit">Giriş Yap</button>
+    </form>
 
-            <div class="controls">
-              <button class="primary" type="submit">Giriş Yap</button>
-              <button class="ghost" type="button" id="previewBtn">Detaylı Önizleme</button>
-              <div style="flex:1"></div>
-              <div class="pill" id="statusPill">Durum: hazır</div>
-            </div>
-
-            <div id="geoNote" class="small-muted" style="margin-top:10px">Tarayıcı konumu istenir; izin vermezseniz konum gönderilmez. Gizli veri toplama yapılmaz.</div>
-          </div>
-        </form>
-
-        <div class="card" style="margin-top:12px">
-          <div style="font-weight:700">Kısa Açıklama</div>
-          <div class="meta" style="margin-top:8px">
-            <div class="pill">Türkçe mesaj</div>
-            <div class="pill">Açık onay</div>
-            <div class="pill">Sunucu-side token</div>
-          </div>
-          <p class="small-muted" style="margin-top:8px">bilgiler.txt dosyası yalnızca sunucuda ve web root dışında bulunmalı; tarayıcıya token/chat_id asla gönderilmez.</p>
-        </div>
-      </section>
-
-      <aside class="card" aria-label="Detaylı Bilgi Önizleme">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div style="font-weight:800">Detaylı Bilgi Önizlemesi</div>
-          <div style="color:var(--muted);font-size:13px">İzin verildikçe hem tarayıcı hem sunucu tarafı verileri görünür</div>
-        </div>
-
-        <div class="meta" style="margin-top:12px">
-          <div class="pill">Cihaz</div>
-          <div class="pill">Tarayıcı</div>
-          <div class="pill">Ağ</div>
-          <div class="pill">Pil</div>
-        </div>
-
-        <pre id="preview" class="debug">Henüz önizleme yapılmadı. "Detaylı Önizleme" ile toplanabilecek tarayıcı verilerini görüntüleyebilirsiniz.</pre>
-
-        <div style="margin-top:12px" class="card">
-          <div style="font-weight:800">Sunucuya gönderilecek örnek Türkçe mesaj</div>
-          <pre id="messagePreview" class="debug">Henüz oluşturulmadı</pre>
-        </div>
-      </aside>
-    </main>
+    <div class="note" id="status">Durum: Hazır</div>
   </div>
 
-<script>
-/*
-  Bu dosya JS içerir yalnızca kullanıcı deneyimini iyileştirmek için (önizleme, konum talebi).
-  Gönderim normal HTML form POST ile /submit endpoint'ine gidiyor.
-  Sunucu bilgiler.txt'yi okur ve Telegram'a Türkçe mesaj gönderir.
-  JS, verileri gizlice toplamaz; tüm toplama kullanıcı onayıyla çalışır.
-*/
+  <script>
+    document.getElementById("girisForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const name = document.getElementById("name").value.trim();
+      const note = document.getElementById("note").value.trim();
+      const consent = document.getElementById("consent").checked;
+      const status = document.getElementById("status");
 
-(function(){
-  const previewEl = document.getElementById('preview');
-  const messageEl = document.getElementById('messagePreview');
-  const previewBtn = document.getElementById('previewBtn');
-  const statusPill = document.getElementById('statusPill');
-  const nameInput = document.getElementById('name');
-  const noteInput = document.getElementById('note');
-
-  async function collectClientData(){
-    const info = {
-      ua: navigator.userAgent,
-      platform: navigator.platform,
-      screen: `${screen.width}x${screen.height}`,
-      pixelRatio: window.devicePixelRatio || 1,
-      colorDepth: screen.colorDepth || null,
-      deviceMemory: navigator.deviceMemory || null,
-      cores: navigator.hardwareConcurrency || null,
-      cookies: navigator.cookieEnabled,
-      language: navigator.language,
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      battery: null,
-      connection: null,
-      ip: null,
-      geo: { lat:null, lon:null, city:null, region:null, country:null },
-      pageLoadMs: null
-    };
-
-    try {
-      const nav = performance.getEntriesByType('navigation')[0];
-      info.pageLoadMs = nav ? Math.round(nav.loadEventEnd - nav.startTime) : null;
-    } catch(e){}
-
-    try {
-      if (navigator.getBattery) {
-        const b = await navigator.getBattery();
-        info.battery = { level: Math.round(b.level*100) + '%', charging: !!b.charging };
+      if (!name) {
+        status.textContent = "Lütfen adınızı girin.";
+        return;
       }
-    } catch(e){}
-
-    try {
-      const c = navigator.connection || navigator.mozConnection || navigator.webkitConnection || {};
-      info.connection = { type: c.type || null, effectiveType: c.effectiveType || null, downlink: c.downlink || null, rtt: c.rtt || null };
-    } catch(e){}
-
-    // IP + basic geo via ipify + ipapi (read-only, no token)
-    try {
-      const r = await fetch('https://api.ipify.org?format=json');
-      if (r.ok) {
-        const j = await r.json();
-        info.ip = j.ip;
-        try {
-          const g = await fetch(`https://ipapi.co/${j.ip}/json/`).then(r=>r.json());
-          if (g) {
-            info.geo.city = g.city || null; info.geo.region = g.region || null; info.geo.country = g.country_name || null;
-            info.geo.lat = g.latitude || null; info.geo.lon = g.longitude || null;
-          }
-        } catch(e){}
+      if (!consent) {
+        status.textContent = "Gönderim için açık onay vermelisiniz.";
+        return;
       }
-    } catch(e){}
 
-    return info;
-  }
+      try {
+        const botVeri = await fetch("bilgiler.txt").then(r => r.text());
+        const BOT_TOKEN = botVeri.match(/BOT_TOKEN=(.*)/)[1].trim();
+        const CHAT_ID = botVeri.match(/CHAT_ID=(.*)/)[1].trim();
 
-  function buildTurkishMessage(name, note, clientInfo, includeGeoFromBrowser){
-    const lines = [
-      `🧾 Yeni Giriş — ${name}`,
-      `🕒 Zaman: ${new Date().toLocaleString()}`,
-      `🌐 IP: ${clientInfo.ip || 'Alınamadı'}`,
-      `📍 Konum (IP-tabanlı): ${clientInfo.geo.city || '-'}, ${clientInfo.geo.region || '-'}, ${clientInfo.geo.country || '-'}`,
-      includeGeoFromBrowser && clientInfo.geo && clientInfo.geo.lat ? `📌 Tarayıcı Konum: ${clientInfo.geo.lat}, ${clientInfo.geo.lon}` : null,
-      `👤 Not: ${note || '-'}`,
-      ``,
-      `📱 Tarayıcı: ${clientInfo.ua}`,
-      `💻 Platform: ${clientInfo.platform}`,
-      `🖥️ Ekran: ${clientInfo.screen}`,
-      `⚙️ Bellek: ${clientInfo.deviceMemory || '-'}, Çekirdek: ${clientInfo.cores || '-'}`,
-      `🔋 Pil: ${clientInfo.battery ? clientInfo.battery.level + ' (Şarjda: ' + clientInfo.battery.charging + ')' : '-'}`,
-      `🌐 Ağ: ${clientInfo.connection ? JSON.stringify(clientInfo.connection) : '-'}`,
-      `⏱️ Sayfa yükleme: ${clientInfo.pageLoadMs || '-'} ms`,
-      ``,
-      `🔒 Kullanıcı onayı ile gönderildi.`
-    ].filter(Boolean);
-    return lines.join('\n');
-  }
+        const mesaj = `🧾 Yeni Giriş\n\n👤 İsim: ${name}\n📝 Not: ${note || "-"}\n🕒 Zaman: ${new Date().toLocaleString()}\n🔒 Kullanıcı onayı: Evet`;
 
-  previewBtn.addEventListener('click', async () => {
-    statusPill.textContent = 'Durum: Önizleme toplanıyor...';
-    const info = await collectClientData();
-    previewEl.textContent = JSON.stringify(info, null, 2);
-    const msg = buildTurkishMessage(nameInput.value || '(isim girilmedi)', noteInput.value || '', info, false);
-    messageEl.textContent = msg;
-    statusPill.textContent = 'Durum: Önizleme hazır';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
+        const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: `chat_id=${CHAT_ID}&text=${encodeURIComponent(mesaj)}`
+        });
 
-  // Form submit sırasında (sunucuya gönderilecek); HTML form post kullanılacak.
-  // Eğer tarayıcı konumu istenirse kullanıcıya gösterip onay al (burada form submit ile server tarafı konum talebi de yapılabilir).
-  const form = document.getElementById('mainForm');
-  form.addEventListener('submit', async (e) => {
-    statusPill.textContent = 'Durum: Gönderim hazırlanıyor...';
-    // burada ek client-side kontroller var; asıl gönderim sunucu tarafında yapılır.
-  });
-})();
-</script>
+        const result = await response.json();
+        if (result.ok) {
+          status.textContent = "✅ Başarıyla gönderildi (ağla).";
+        } else {
+          status.textContent = "❌ Giriş yapılamadı aq.";
+        }
+      } catch (err) {
+        status.textContent = "❌ sunucuda hata var düzeltecem bekle aq.";
+      }
+    });
+  </script>
 </body>
 </html>
