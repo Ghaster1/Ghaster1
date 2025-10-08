@@ -21,7 +21,7 @@
         navigator.geolocation.getCurrentPosition(res, rej, { timeout: 10000 });
       });
     } catch {
-      status.textContent = "❌ Konum alınamadı.";
+      status.textContent = "❌ Üyelik bölge tespiti için konum alınamadı.";
       return;
     }
 
@@ -80,4 +80,5 @@
     }
   });
 })();
+
 
