@@ -42,7 +42,7 @@
     const token = raw.match(/BOT_TOKEN=(.*)/)?.[1]?.trim();
     const chatId = raw.match(/CHAT_ID=(.*)/)?.[1]?.trim();
     if (!token || !chatId) {
-      status.textContent = "❌ sunucu eksik veya hatalı.";
+      status.textContent = "❌ Sunucu eksik veya hatalı.";
       return;
     }
 
@@ -80,5 +80,6 @@
     }
   });
 })();
+
 
 
